@@ -1,3 +1,10 @@
+unity (7.5.0+18.04.20190304-0ubuntu1) bionic; urgency=medium
+
+  * lockscreen: cancel authentication if externally unlocked (LP:
+    #1733557)
+
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Mon, 04 Mar 2019 11:03:45 +0000
+
 unity (7.5.0+18.04.20180413-0ubuntu1) bionic; urgency=medium
 
   * unity_migrate_gnome_favorites: add evolution and gnome-tweaks
