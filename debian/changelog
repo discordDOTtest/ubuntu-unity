@@ -1,3 +1,10 @@
+unity (7.5.0+18.10.20190304-0ubuntu1) cosmic; urgency=medium
+
+  * lockscreen: cancel authentication if externally unlocked (LP:
+    #1733557)
+
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Mon, 04 Mar 2019 11:03:23 +0000
+
 unity (7.5.0+18.10.20180926.2-0ubuntu1) cosmic; urgency=medium
 
   [ Alexander Hale ]
