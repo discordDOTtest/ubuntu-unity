@@ -1,4 +1,4 @@
-unity (7.5.1) UNRELEASED; urgency=medium
+unity (7.5.1+21.10.20210601.1-0ubuntu1) impish; urgency=medium
 
   * New upstream release
   * IntrospectionData: Keep Get() const as it should be.
@@ -35,7 +35,7 @@ unity (7.5.1) UNRELEASED; urgency=medium
     Fixes linking issue on s390x.
   * tests/test_text_input: Initialize previews style
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Tue, 01 Jun 2021 21:56:27 +0200
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Tue, 01 Jun 2021 19:58:38 +0000
 
 unity (7.5.0+20.04.20200312-0ubuntu1) focal; urgency=medium
 
