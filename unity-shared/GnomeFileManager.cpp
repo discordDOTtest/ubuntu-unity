@@ -38,7 +38,7 @@ const std::string TRASH_URI = "trash:///";
 const std::string FILE_SCHEMA = "file://";
 
 const std::string NAUTILUS_NAME = "org.gnome.Nautilus";
-const std::string NAUTILUS_PATH = "/org/gnome/Nautilus";
+const std::string NAUTILUS_FILE_OPS_PATH = "/org/gnome/Nautilus/FileOperations2";
 }
 
 struct GnomeFileManager::Impl
@@ -55,8 +55,8 @@ struct GnomeFileManager::Impl
   glib::DBusProxy::Ptr NautilusOperationsProxy() const
   {
     auto flags = static_cast<GDBusProxyFlags>(G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES|G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS);
-    return std::make_shared<glib::DBusProxy>(NAUTILUS_NAME, NAUTILUS_PATH,
-                                             "org.gnome.Nautilus.FileOperations",
+    return std::make_shared<glib::DBusProxy>(NAUTILUS_NAME, NAUTILUS_FILE_OPS_PATH,
+                                             "org.gnome.Nautilus.FileOperations2",
                                              G_BUS_TYPE_SESSION, flags);
   }
 
@@ -122,6 +122,27 @@ struct GnomeFileManager::Impl
       idle_.reset(new glib::Idle(app_manager_not_synced));
   }
 
+  GVariant *GetPlatformData(uint64_t timestamp, Window parent_xid)
+  {
+    GVariantBuilder builder;
+    char *parent_handle;
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE ("a{sv}"));
+
+    parent_handle = g_strdup_printf("x11:%lx", parent_xid);
+
+    g_variant_builder_add(&builder, "{sv}", "parent-handle",
+                          g_variant_new_take_string(parent_handle));
+
+    g_variant_builder_add(&builder, "{sv}", "timestamp",
+                          g_variant_new_uint32(timestamp));
+
+    g_variant_builder_add(&builder, "{sv}", "window-position",
+                          g_variant_new_string("center"));
+
+    return g_variant_builder_end(&builder);
+  }
+
   GnomeFileManager* parent_;
   glib::DBusProxy filemanager_proxy_;
   glib::Source::UniquePtr idle_;
@@ -184,22 +205,29 @@ bool GnomeFileManager::TrashFile(std::string const& uri)
   return false;
 }
 
-void GnomeFileManager::EmptyTrash(uint64_t timestamp)
+void GnomeFileManager::EmptyTrash(uint64_t timestamp, Window parent_xid)
 {
   auto const& proxy = impl_->NautilusOperationsProxy();
+  const bool ask_confirmation = true;
+
+  GVariantBuilder b;
+  g_variant_builder_init(&b, G_VARIANT_TYPE("(ba{sv})"));
+  g_variant_builder_add(&b, "b", ask_confirmation);
+  g_variant_builder_add_value(&b, impl_->GetPlatformData(timestamp, parent_xid));
+  glib::Variant parameters(g_variant_builder_end(&b));
 
   // Passing the proxy to the lambda we ensure that it will be destroyed when needed
-  proxy->CallBegin("EmptyTrashWithTimestamp", g_variant_new("(u)", timestamp), [proxy] (GVariant*, glib::Error const&) {});
+  proxy->CallBegin("EmptyTrash", parameters, [proxy] (GVariant*, glib::Error const&) {});
 }
 
-void GnomeFileManager::CopyFiles(std::set<std::string> const& uris, std::string const& dest, uint64_t timestamp)
+void GnomeFileManager::CopyFiles(std::set<std::string> const& uris, std::string const& dest, uint64_t timestamp, Window parent_xid)
 {
   if (uris.empty() || dest.empty())
     return;
 
   bool found_valid = false;
   GVariantBuilder b;
-  g_variant_builder_init(&b, G_VARIANT_TYPE("(assu)"));
+  g_variant_builder_init(&b, G_VARIANT_TYPE("(assa{sv})"));
   g_variant_builder_open(&b, G_VARIANT_TYPE("as"));
 
   for (auto const& uri : uris)
@@ -213,14 +241,14 @@ void GnomeFileManager::CopyFiles(std::set<std::string> const& uris, std::string 
 
   g_variant_builder_close(&b);
   g_variant_builder_add(&b, "s", dest.c_str());
-  g_variant_builder_add(&b, "u", timestamp);
+  g_variant_builder_add_value(&b, impl_->GetPlatformData(timestamp, parent_xid));
   glib::Variant parameters(g_variant_builder_end(&b));
 
   if (found_valid)
   {
     // Passing the proxy to the lambda we ensure that it will be destroyed when needed
     auto const& proxy = impl_->NautilusOperationsProxy();
-    proxy->CallBegin("CopyURIsWithTimestamp", parameters, [proxy] (GVariant*, glib::Error const&) {});
+    proxy->CallBegin("CopyURIs", parameters, [proxy] (GVariant*, glib::Error const&) {});
   }
 }
 
