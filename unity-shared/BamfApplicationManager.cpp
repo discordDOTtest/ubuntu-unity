@@ -730,6 +730,26 @@ ApplicationWindowPtr Manager::GetWindowForId(Window xid) const
   return nullptr;
 }
 
+ApplicationWindowPtr Manager::GetWindowForProperty(std::string const& name, std::string const& value) const
+{
+  if (name.empty())
+    return nullptr;
+
+  for (auto const& win_pair : pool::wins_)
+  {
+    if (win_pair.second->property(name) == value)
+      return win_pair.second;
+  }
+
+  for (auto const& win : GetWindowsForMonitor())
+  {
+    if (win->property(name) == value)
+      return win;
+  }
+
+  return nullptr;
+}
+
 ApplicationList Manager::GetRunningApplications() const
 {
   ApplicationList result;

@@ -173,6 +173,7 @@ public:
   WindowList GetWindowsForMonitor(int monitor = -1) const override;
   ApplicationPtr GetApplicationForWindow(Window xid) const override;
   ApplicationWindowPtr GetWindowForId(Window xid) const override;
+  ApplicationWindowPtr GetWindowForProperty(const std::string& name, const std::string& value) const override;
 
   ApplicationPtr EnsureApplication(BamfView*) const;
   ApplicationWindowPtr EnsureWindow(BamfView*) const;
