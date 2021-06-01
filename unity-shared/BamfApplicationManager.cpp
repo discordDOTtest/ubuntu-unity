@@ -209,6 +209,11 @@ Window AppWindow::window_id() const
   return bamf_window_get_xid(bamf_window_);
 }
 
+std::string AppWindow::property(std::string const& property) const
+{
+  return glib::String(bamf_window_get_utf8_prop(bamf_window_, property.c_str())).Str();
+}
+
 WindowType AppWindow::type() const
 {
   switch (bamf_window_get_window_type(bamf_window_))

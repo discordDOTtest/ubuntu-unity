@@ -81,6 +81,7 @@ public:
 
   WindowType type() const override;
   Window window_id() const override;
+  std::string property(std::string const& name) const override;
   ApplicationPtr application() const override;
   void Quit() const override;
 

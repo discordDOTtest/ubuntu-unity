@@ -102,6 +102,8 @@ public:
     return !(operator==(other));
   }
 
+  virtual std::string property(std::string const& name) const = 0;
+
   nux::ROProperty<int> monitor;
 
   nux::ROProperty<std::string> title;

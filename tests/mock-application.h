@@ -55,6 +55,7 @@ struct MockApplicationWindow : unity::ApplicationWindow
 
     ON_CALL(*this, type()).WillByDefault(Invoke([this] { return type_; }));
     ON_CALL(*this, window_id()).WillByDefault(Invoke([this] { return xid_; }));
+    ON_CALL(*this, property(_)).WillByDefault(Return("MockWindowProperty"));
     ON_CALL(*this, Focus()).WillByDefault(Invoke([this] { return LocalFocus(); }));
     ON_CALL(*this, application()).WillByDefault(Return(unity::ApplicationPtr()));
   }
@@ -71,6 +72,7 @@ struct MockApplicationWindow : unity::ApplicationWindow
 
   MOCK_CONST_METHOD0(type, unity::WindowType());
   MOCK_CONST_METHOD0(window_id, Window());
+  MOCK_CONST_METHOD1(property, std::string(std::string const&));
   MOCK_CONST_METHOD0(application, unity::ApplicationPtr());
   MOCK_CONST_METHOD0(Focus, bool());
   MOCK_CONST_METHOD0(Quit, void());
