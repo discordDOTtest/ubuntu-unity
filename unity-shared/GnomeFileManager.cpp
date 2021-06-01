@@ -39,6 +39,8 @@ const std::string FILE_SCHEMA = "file://";
 
 const std::string NAUTILUS_NAME = "org.gnome.Nautilus";
 const std::string NAUTILUS_FILE_OPS_PATH = "/org/gnome/Nautilus/FileOperations2";
+
+const std::string GTK_WINDOW_PATH_PROPERTY = "_GTK_WINDOW_OBJECT_PATH";
 }
 
 struct GnomeFileManager::Impl
@@ -47,9 +49,9 @@ struct GnomeFileManager::Impl
     : parent_(parent)
     , filemanager_proxy_("org.freedesktop.FileManager1", "/org/freedesktop/FileManager1", "org.freedesktop.FileManager1", G_BUS_TYPE_SESSION, G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS)
   {
-    auto callback = sigc::mem_fun(this, &Impl::OnOpenLocationsXidsUpdated);
-    filemanager_proxy_.GetProperty("XUbuntuOpenLocationsXids", callback);
-    filemanager_proxy_.ConnectProperty("XUbuntuOpenLocationsXids", callback);
+    auto callback = sigc::mem_fun(this, &Impl::OnOpenWindowsWithLocationsChanged);
+    filemanager_proxy_.GetProperty("OpenWindowsWithLocations", callback);
+    filemanager_proxy_.ConnectProperty("OpenWindowsWithLocations", callback);
   }
 
   glib::DBusProxy::Ptr NautilusOperationsProxy() const
@@ -60,9 +62,9 @@ struct GnomeFileManager::Impl
                                              G_BUS_TYPE_SESSION, flags);
   }
 
-  void OnOpenLocationsXidsUpdated(GVariant* value)
+  void OnOpenWindowsWithLocationsChanged(GVariant* value)
   {
-    opened_location_for_xid_.clear();
+    opened_location_for_window_.clear();
 
     if (!value)
     {
@@ -71,7 +73,7 @@ struct GnomeFileManager::Impl
       return;
     }
 
-    if (!g_variant_is_of_type(value, G_VARIANT_TYPE("a{uas}")))
+    if (!g_variant_is_of_type(value, G_VARIANT_TYPE("a{sas}")))
     {
       LOG_ERROR(logger) << "Locations value type is not matching the expected one!";
       parent_->locations_changed.emit();
@@ -81,39 +83,46 @@ struct GnomeFileManager::Impl
     GVariantIter iter;
     GVariantIter *str_iter;
     const char *loc;
-    guint32 xid;
+    const char *window_path;
+    std::map<std::string, std::string> opened_locations_for_path;
 
     g_variant_iter_init(&iter, value);
 
-    while (g_variant_iter_loop(&iter, "{uas}", &xid, &str_iter))
+    while (g_variant_iter_loop(&iter, "{&sas}", &window_path, &str_iter))
     {
       while (g_variant_iter_loop(str_iter, "s", &loc))
       {
         /* We only care about the first mentioned location as per our "standard"
          * it's the active one */
-        LOG_DEBUG(logger) << xid << ": Opened location " << loc;
-        opened_location_for_xid_[xid] = loc;
+        LOG_DEBUG(logger) << window_path << ": Opened location " << loc;
+        opened_locations_for_path[window_path] = loc;
         break;
       }
     }
 
     // We must ensure that we emit the locations_changed signal only when all
     // the parent windows have been registered on the app-manager
-    auto app_manager_not_synced = [this]
+    auto app_manager_not_synced = [this, opened_locations_for_path]
     {
       auto& app_manager = ApplicationManager::Default();
       bool synced = true;
 
-      for (auto const& pair : opened_location_for_xid_)
+      for (auto const& pair : opened_locations_for_path)
       {
-        synced = (app_manager.GetWindowForId(pair.first) != nullptr);
+        auto win = app_manager.GetWindowForProperty(GTK_WINDOW_PATH_PROPERTY, pair.first);
+        synced = (win != nullptr);
 
         if (!synced)
           break;
+
+        LOG_DEBUG(logger) << win->window_id() << ": Opened location " << pair.second;
+        opened_location_for_window_[win] = pair.second;
       }
 
       if (synced)
         parent_->locations_changed.emit();
+      else
+        opened_location_for_window_.clear();
 
       return !synced;
     };
@@ -146,7 +155,7 @@ struct GnomeFileManager::Impl
   GnomeFileManager* parent_;
   glib::DBusProxy filemanager_proxy_;
   glib::Source::UniquePtr idle_;
-  std::map<Window, std::string> opened_location_for_xid_;
+  std::map<ApplicationWindowPtr, std::string> opened_location_for_window_;
 };
 
 
@@ -255,11 +264,9 @@ void GnomeFileManager::CopyFiles(std::set<std::string> const& uris, std::string 
 WindowList GnomeFileManager::WindowsForLocation(std::string const& location) const
 {
   std::vector<ApplicationWindowPtr> windows;
-  auto& app_manager = ApplicationManager::Default();
-
   glib::Object<GFile> location_file(g_file_new_for_uri(location.c_str()));
 
-  for (auto const& pair : impl_->opened_location_for_xid_)
+  for (auto const& pair : impl_->opened_location_for_window_)
   {
     auto const& loc = pair.second;
     bool matches = (loc == location);
@@ -273,7 +280,7 @@ WindowList GnomeFileManager::WindowsForLocation(std::string const& location) con
 
     if (matches)
     {
-      auto const& win = app_manager.GetWindowForId(pair.first);
+      auto const& win = pair.first;
 
       if (win && std::find(windows.rbegin(), windows.rend(), win) == windows.rend())
         windows.push_back(win);
@@ -287,9 +294,9 @@ std::string GnomeFileManager::LocationForWindow(ApplicationWindowPtr const& win)
 {
   if (win)
   {
-    auto it = impl_->opened_location_for_xid_.find(win->window_id());
+    auto it = impl_->opened_location_for_window_.find(win);
 
-    if (it != end(impl_->opened_location_for_xid_))
+    if (it != end(impl_->opened_location_for_window_))
       return it->second;
   }
 
