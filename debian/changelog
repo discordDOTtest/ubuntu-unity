@@ -1,3 +1,18 @@
+unity (7.5.1+20.04.20211026-0ubuntu1) UNRELEASED; urgency=medium
+
+  [ Uladzislau Nikalayevich ]
+  * DecoratedWindow: Do not try to use shaped shadows on empty quads.
+    Windows may have no shaped rectangles, but we're still trying to set
+    them. This is because we might not initialize the shape size, leading
+    to invalid values. (LP: #1904337)
+
+  [ Marco Trevisan (Treviño) ]
+  * DecorationsShape: Initialize parameters on missing rectangles.
+    In such case the shape should just be empty, but we didn't really handle
+    the case properly. (LP: #1904337)
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Tue, 26 Oct 2021 14:25:06 +0200
+
 unity (7.5.0+20.04.20200312-0ubuntu1) focal; urgency=medium
 
   [ Khurshid Alam ]
