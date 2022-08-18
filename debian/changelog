@@ -1,3 +1,10 @@
+unity (7.5.1+22.10.20220818-0ubuntu1) kinetic; urgency=medium
+
+  [ Alberts Muktupāvels ]
+  * Fix build after Compiz changes
+
+ -- Dmitry Shachnev <mitya57@ubuntu.com>  Thu, 18 Aug 2022 10:35:27 +0000
+
 unity (7.5.1+22.04.20211026.2-0ubuntu1) jammy; urgency=medium
 
   [ Uladzislau Nikalayevich ]
