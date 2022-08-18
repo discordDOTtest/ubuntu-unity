@@ -19,6 +19,8 @@
 #include "unity-mt-grab-handles.h"
 #include <iostream>
 
+using namespace boost::placeholders;
+
 COMPIZ_PLUGIN_20090315(unitymtgrabhandles, UnityMTGrabHandlesPluginVTable);
 
 unsigned int unity::MT::MaximizedHorzMask = CompWindowStateMaximizedHorzMask;
