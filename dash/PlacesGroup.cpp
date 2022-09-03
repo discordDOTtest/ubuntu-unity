@@ -491,20 +491,6 @@ void PlacesGroup::Draw(nux::GraphicsEngine& graphics_engine,
     _focus_layer->Renderlayer(graphics_engine);
   }
 
-  if (_background_layer)
-  {
-    nux::Geometry bg_geo = base;
-    int bg_width = _background_layer->GetDeviceTexture()->GetWidth();
-    bg_geo.x = std::max(bg_geo.width - bg_width, 0);
-
-    // to render into a space left over by the scrollview (1 has NOT to be scaled)
-    bg_geo.width = std::min(bg_width, bg_geo.GetWidth()) + 1;
-    bg_geo.height = _background_layer->GetDeviceTexture()->GetHeight();
-
-    _background_layer->SetGeometry(bg_geo);
-    _background_layer->Renderlayer(graphics_engine);
-  }
-
   graphics_engine.PopClippingRectangle();
 }
 
