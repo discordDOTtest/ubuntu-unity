@@ -886,32 +886,6 @@ void ql_tint_dot_hl(cairo_t* cr,
   cairo_rectangle(dots_cr, 2.0f, 2.0f, 1.0f, 1.0f);
   cairo_fill(dots_cr);
   dots_pattern = cairo_pattern_create_for_surface(dots_surf.GetSurface());
-
-  // fill path of normal context with dot-pattern
-  cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-  cairo_set_source(cr, dots_pattern);
-  cairo_pattern_set_extend(dots_pattern, CAIRO_EXTEND_REPEAT);
-  cairo_fill_preserve(cr);
-  cairo_pattern_destroy(dots_pattern);
-
-  // draw highlight
-  cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-  hl_pattern = cairo_pattern_create_radial(hl_x,
-                                           hl_y,
-                                           0.0f,
-                                           hl_x,
-                                           hl_y,
-                                           hl_size);
-  cairo_pattern_add_color_stop_rgba(hl_pattern,
-                                    0.0f,
-                                    hl_color.red,
-                                    hl_color.green,
-                                    hl_color.blue,
-                                    hl_color.alpha);
-  cairo_pattern_add_color_stop_rgba(hl_pattern, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-  cairo_set_source(cr, hl_pattern);
-  cairo_fill(cr);
-  cairo_pattern_destroy(hl_pattern);
 }
 
 void ql_setup(cairo_surface_t** surf,
