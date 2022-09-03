@@ -1420,7 +1420,7 @@ bool DashView::DoFallbackActivation(std::string const& uri)
     return application_starter_->Launch(appname, last_activated_timestamp_);
   }
   else
-    return gtk_show_uri(NULL, uri.c_str(), last_activated_timestamp_, NULL);
+    return gtk_show_uri_on_window(NULL, uri.c_str(), last_activated_timestamp_, NULL);
 
   return false;
 }
