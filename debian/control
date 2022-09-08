@@ -90,7 +90,6 @@ Depends: ${shlibs:Depends},
 	 unity-scope-home,
 Recommends: unity-control-center,
             ${unity-default-masterscopes}
-            nautilus (>> 3.37.1),
             nemo,
             gnome-disk-utility,
             hud,
