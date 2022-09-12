@@ -22,6 +22,7 @@
 #include <UnityCore/GLibWrapper.h>
 
 #include "GnomeFileManager.h"
+#include "NemoFileManager.h"
 
 #include <gio/gdesktopappinfo.h>
 
@@ -42,6 +43,8 @@ FileManager::Ptr FileManager::GetDefault()
 
       if (app_id == "org.gnome.Nautilus.desktop")
         fm = GnomeFileManager::Get();
+      else if (app_id == "nemo.desktop")
+        fm = NemoFileManager::Get();
     }
     else
     {
