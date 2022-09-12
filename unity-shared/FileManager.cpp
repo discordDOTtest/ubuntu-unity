@@ -48,7 +48,7 @@ FileManager::Ptr FileManager::GetDefault()
     }
     else
     {
-      fm = GnomeFileManager::Get();
+      fm = NemoFileManager::Get();
     }
   }
 
