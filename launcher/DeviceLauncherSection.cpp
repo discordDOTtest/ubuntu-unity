@@ -22,7 +22,7 @@
 #include "DevicesSettingsImp.h"
 #include "VolumeImp.h"
 #include "VolumeMonitorWrapper.h"
-#include "unity-shared/GnomeFileManager.h"
+#include "unity-shared/FileManager.h"
 
 namespace unity
 {
@@ -34,7 +34,7 @@ DeviceLauncherSection::DeviceLauncherSection(AbstractVolumeMonitorWrapper::Ptr c
                                              DeviceNotificationDisplay::Ptr const& notify)
   : monitor_(vm ? vm : std::make_shared<VolumeMonitorWrapper>())
   , devices_settings_(ds ? ds : std::make_shared<DevicesSettingsImp>())
-  , file_manager_(GnomeFileManager::Get())
+  , file_manager_(FileManager::GetDefault())
   , device_notification_display_(notify ? notify : std::make_shared<DeviceNotificationDisplayImp>())
 {
   monitor_->volume_added.connect(sigc::mem_fun(this, &DeviceLauncherSection::OnVolumeAdded));

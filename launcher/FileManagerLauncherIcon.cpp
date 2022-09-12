@@ -23,7 +23,7 @@
 #include <NuxCore/Logger.h>
 #include <UnityCore/DesktopUtilities.h>
 
-#include "unity-shared/GnomeFileManager.h"
+#include "unity-shared/FileManager.h"
 
 namespace unity
 {
@@ -40,7 +40,7 @@ const std::string DEFAULT_ICON = "system-file-manager";
 FileManagerLauncherIcon::FileManagerLauncherIcon(ApplicationPtr const& app, DeviceLauncherSection::Ptr const& dev, FileManager::Ptr const& fm)
   : WindowedLauncherIcon(IconType::APPLICATION)
   , ApplicationLauncherIcon(app)
-  , StorageLauncherIcon(GetIconType(), fm ? fm : GnomeFileManager::Get())
+  , StorageLauncherIcon(GetIconType(), fm ? fm : FileManager::GetDefault())
   , devices_(dev)
 {
   // We disconnect from ApplicationLauncherIcon app signals, as we manage them manually

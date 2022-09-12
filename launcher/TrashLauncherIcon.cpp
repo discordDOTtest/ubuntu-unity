@@ -29,7 +29,7 @@
 
 #include "QuicklistMenuItemLabel.h"
 #include "unity-shared/DesktopApplicationManager.h"
-#include "unity-shared/GnomeFileManager.h"
+#include "unity-shared/FileManager.h"
 
 namespace unity
 {
@@ -45,7 +45,7 @@ namespace
 
 TrashLauncherIcon::TrashLauncherIcon(FileManager::Ptr const& fm)
   : WindowedLauncherIcon(IconType::TRASH)
-  , StorageLauncherIcon(GetIconType(), fm ? fm : GnomeFileManager::Get())
+  , StorageLauncherIcon(GetIconType(), fm ? fm : FileManager::GetDefault())
   , empty_(true)
 {
   tooltip_text = _("Trash");
