@@ -38,6 +38,8 @@ class FileManager : public sigc::trackable
 public:
   typedef std::shared_ptr<FileManager> Ptr;
 
+  static Ptr GetDefault();
+
   FileManager() = default;
   virtual ~FileManager() = default;
 

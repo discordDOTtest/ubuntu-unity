@@ -30,6 +30,7 @@ set (UNITY_SHARED_SOURCES
      DesktopApplicationManager.cpp
      EMConverter.cpp
      ExpanderView.cpp
+     FileManager.cpp
      GnomeFileManager.cpp
      FontSettings.cpp
      GraphicsUtils.cpp
@@ -45,6 +46,7 @@ set (UNITY_SHARED_SOURCES
      LayoutSystem.cpp
      LineSeparator.cpp
      MenuManager.cpp
+     NemoFileManager.cpp
      OverlayRenderer.cpp
      OverlayScrollView.cpp
      OverlayWindowButtons.cpp

@@ -275,24 +275,6 @@ void tint_dot_hl(cairo_t* cr,
                         tint_color.blue,
                         tint_color.alpha);
   cairo_fill_preserve(cr);
-
-  // draw glow
-  hl_pattern = cairo_pattern_create_radial(hl_x,
-                                           hl_y - hl_size / 1.4f,
-                                           0.0f,
-                                           hl_x,
-                                           hl_y - hl_size / 1.4f,
-                                           hl_size);
-  cairo_pattern_add_color_stop_rgba(hl_pattern,
-                                    0.0f,
-                                    hl_color.red,
-                                    hl_color.green,
-                                    hl_color.blue,
-                                    hl_color.alpha);
-  cairo_pattern_add_color_stop_rgba(hl_pattern, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-  cairo_set_source(cr, hl_pattern);
-  cairo_fill(cr);
-  cairo_pattern_destroy(hl_pattern);
 }
 
 void _setup(cairo_surface_t** surf,

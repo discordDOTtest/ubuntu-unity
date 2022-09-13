@@ -30,6 +30,7 @@
 #include "LauncherController.h"
 #include "Launcher.h"
 #include "unity-shared/IconRenderer.h"
+#include "unity-shared/InputMonitor.h"
 #include "unity-shared/PanelStyle.h"
 #include "unity-shared/UBusMessages.h"
 #include "unity-shared/UnitySettings.h"
@@ -72,6 +73,8 @@ private:
 
   void Init()
   {
+    input::Monitor im_;
+
     SetupBackground();
     controller.reset(new launcher::Controller(std::make_shared<StandaloneDndManager>(), std::make_shared<ui::EdgeBarrierController>()));
 
