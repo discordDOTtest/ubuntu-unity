@@ -1,5 +1,6 @@
-unity (7.6.0) UNRELEASED; urgency=medium
+unity (7.6.0+22.10.20220913-0ubuntu1) kinetic; urgency=medium
 
+  [ Rudra Saraswat ]
   * Added transparent dash border
   * Replaced launcher bfb with Ubuntu Unity logo
   * Removed broken app info and ratings from dash
@@ -7,7 +8,7 @@ unity (7.6.0) UNRELEASED; urgency=medium
   * Fixed the 'Empty Trash' button in the launcher
   * Fixed the standalone testing Unity7 launcher
 
- -- Rudra Saraswat <rs2009@ubuntu.com>  Fri, 29 Apr 2022 15:28:29 +0530
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Tue, 13 Sep 2022 15:01:46 +0000
 
 unity (7.5.1+22.10.20220818-0ubuntu1) kinetic; urgency=medium
 
