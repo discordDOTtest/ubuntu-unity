@@ -30,9 +30,9 @@ set (UNITY_SHARED_SOURCES
      DesktopApplicationManager.cpp
      EMConverter.cpp
      ExpanderView.cpp
-     FileManager.cpp
      GnomeFileManager.cpp
      FontSettings.cpp
+     FileManager.cpp
      GraphicsUtils.cpp
      IMTextEntry.cpp
      IconLoader.cpp

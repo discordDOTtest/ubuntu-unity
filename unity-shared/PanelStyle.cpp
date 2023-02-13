@@ -41,8 +41,8 @@ Style* style_instance = nullptr;
 
 DECLARE_LOGGER(logger, "unity.panel.style");
 const int BUTTONS_SIZE = 16;
-const int BUTTONS_PADDING = 1;
-const int BASE_PANEL_HEIGHT = 24;
+const int BUTTONS_PADDING = 9;
+const int BASE_PANEL_HEIGHT = 30;
 const std::string PANEL_STYLE_CSS_NAME = "UnityPanelWidget";
 
 inline std::string button_id(std::string const& prefix, double scale, WindowButtonType type, WindowState ws)

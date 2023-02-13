@@ -41,8 +41,8 @@
 #include <UnityCore/GSettingsScopes.h>
 #include <UnityCore/ScopeProxyInterface.h>
 
-const unity::RawPixel WIDTH(1024);
-const unity::RawPixel HEIGHT(768);
+const unity::RawPixel WIDTH(1280);
+const unity::RawPixel HEIGHT(720);
 
 using namespace unity::dash;
 
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
                                         0, &TestRunner::InitWindowThread, test_runner));
 
   nux::ObjectPtr<nux::BaseTexture> background_tex;
-  background_tex.Adopt(nux::CreateTextureFromFile("/usr/share/backgrounds/warty-final-ubuntu.png"));
+  background_tex.Adopt(nux::CreateTextureFromFile("/usr/share/backgrounds/ubuntu-unity/ubuntu-unity-default.png"));
   nux::TexCoordXForm texxform;
   auto tex_layer = std::make_shared<nux::TextureLayer>(background_tex->GetDeviceTexture(), texxform, nux::color::White);
   wt->SetWindowBackgroundPaintLayer(tex_layer.get());

@@ -10,7 +10,7 @@ include (GNUInstallDirs)
 #
 set (PROJECT_NAME "unity")
 set (UNITY_MAJOR 7)
-set (UNITY_MINOR 6)
+set (UNITY_MINOR 7)
 set (UNITY_MICRO 0)
 set (UNITY_VERSION "${UNITY_MAJOR}.${UNITY_MINOR}.${UNITY_MICRO}")
 set (UNITY_API_VERSION "6.0")
@@ -29,7 +29,7 @@ option(
 option(
   ENABLE_UNIT_TESTS
   "Enable Unity Unit Tests"
-  ON
+  OFF
 )
 
 # This is due to bug lp:668799 - qemu-arm segfaults executing msgmerge

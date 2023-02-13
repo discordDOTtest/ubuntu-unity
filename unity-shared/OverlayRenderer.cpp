@@ -99,6 +99,8 @@ public:
   nux::ObjectPtr<nux::BaseTexture> right_corner_;
   nux::ObjectPtr<nux::BaseTexture> right_corner_mask_;
 
+  OverlayPosition dash_position = OverlayPosition::LEFT;
+
   // temporary variable that stores the number of backgrounds we have rendered
   int bgs;
   bool visible;
@@ -140,20 +142,37 @@ void OverlayRendererImpl::LoadScaledTextures()
   double scale = parent->scale;
   auto& style = dash::Style::Instance();
 
-  horizontal_texture_ = style.GetDashHorizontalTile(scale);
-  horizontal_texture_mask_ = style.GetDashHorizontalTileMask(scale);
-  right_texture_ = style.GetDashRightTile(scale);
-  right_texture_mask_ = style.GetDashRightTileMask(scale);
-  top_left_texture_ = style.GetDashTopLeftTile(scale);
-  left_texture_ = style.GetDashLeftTile(scale);
-  top_texture_ = style.GetDashTopTile(scale);
+  if (parent->owner_type == OverlayOwner::Hud) {
+    horizontal_texture_ = style.GetDashHorizontalTile(scale);
+    horizontal_texture_mask_ = style.GetDashHorizontalTileMask(scale);
+    right_texture_ = style.GetDashRightTile(scale);
+    right_texture_mask_ = style.GetDashRightTileMask(scale);
+    top_left_texture_ = style.GetDashTopLeftTile(scale);
+    left_texture_ = style.GetDashLeftTile(scale);
+    top_texture_ = style.GetDashTopTile(scale);
 
-  corner_ = style.GetDashCorner(scale);
-  corner_mask_ = style.GetDashCornerMask(scale);
-  left_corner_ = style.GetDashLeftCorner(scale);
-  left_corner_mask_ = style.GetDashLeftCornerMask(scale);
-  right_corner_ = style.GetDashRightCorner(scale);
-  right_corner_mask_ = style.GetDashRightCornerMask(scale);
+    corner_ = style.GetDashCorner(scale);
+    corner_mask_ = style.GetDashCornerMask(scale);
+    left_corner_ = style.GetDashLeftCorner(scale);
+    left_corner_mask_ = style.GetDashLeftCornerMask(scale);
+    right_corner_ = style.GetDashRightCorner(scale);
+    right_corner_mask_ = style.GetDashRightCornerMask(scale);
+  } else {
+    horizontal_texture_ = style.GetEmpty(scale);
+    horizontal_texture_mask_ = style.GetEmpty(scale);
+    right_texture_ = style.GetEmpty(scale);
+    right_texture_mask_ = style.GetEmpty(scale);
+    top_left_texture_ = style.GetEmpty(scale);
+    left_texture_ = style.GetEmpty(scale);
+    top_texture_ = style.GetEmpty(scale);
+
+    corner_ = style.GetEmpty(scale);
+    corner_mask_ = style.GetEmpty(scale);
+    left_corner_ = style.GetEmpty(scale);
+    left_corner_mask_ = style.GetEmpty(scale);
+    right_corner_ = style.GetEmpty(scale);
+    right_corner_mask_ = style.GetEmpty(scale);
+  }
 }
 
 void OverlayRendererImpl::OnBgColorChanged(nux::Color const& new_color)
@@ -186,7 +205,7 @@ void OverlayRendererImpl::UpdateTextures()
   rop.Blend = true;
   rop.SrcBlend = GL_ZERO;
   rop.DstBlend = GL_SRC_COLOR;
-  nux::Color darken_colour = nux::Color(0.9f, 0.9f, 0.9f, 1.0f);
+  nux::Color darken_colour = nux::Color(1.0f, 1.0f, 1.0f, 1.0f);
 
   //When we are in low gfx mode then our darken layer will act as a background.
   if (Settings::Instance().low_gfx())
@@ -198,7 +217,7 @@ void OverlayRendererImpl::UpdateTextures()
   }
 
   bg_darken_layer_ = std::make_shared<nux::ColorLayer>(darken_colour, false, rop);
-  bg_shine_texture_ = dash::Style::Instance().GetDashShine()->GetDeviceTexture();
+  // bg_shine_texture_ = dash::Style::Instance().GetDashShine()->GetDeviceTexture();
 
   auto const& bg_refine_tex = dash::Style::Instance().GetRefineTextureDash();
 
@@ -619,7 +638,6 @@ void OverlayRendererImpl::Draw(nux::GraphicsEngine& gfx_context, nux::Geometry c
     int launcher_size = Settings::Instance().LauncherSize(monitor);
     int panel_height = panel::Style::Instance().PanelHeight(monitor);
 
-    auto dash_position = OverlayPosition::LEFT;
     int border_y = content_geo.y;
     int border_height = larger_absolute_geo.height;
     if (parent->owner_type() == OverlayOwner::Dash && settings.launcher_position() == LauncherPosition::BOTTOM)

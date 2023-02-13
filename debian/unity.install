@@ -1,6 +1,6 @@
 etc/compizconfig
 etc/pam.d
-usr/bin
+usr/bin/unity
 usr/lib/*/compiz/libunity*.so
 usr/lib/*/unity/unity-active-plugins-safety-check
 usr/lib/*/unity/compiz-config-profile-setter

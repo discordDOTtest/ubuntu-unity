@@ -19,3 +19,7 @@
     D-Bus activation. This is used for testing how the panel reacts when it
     starts before the service does.
 
+                                   Credits                                      
+--------------------------------------------------------------------------------
+
+UWidgets is based on the Blighty project.

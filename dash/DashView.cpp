@@ -39,6 +39,7 @@
 #include "unity-shared/UBusMessages.h"
 #include "unity-shared/UnitySettings.h"
 #include "unity-shared/WindowManager.h"
+#include "unity-shared/FileManager.h"
 
 namespace unity
 {
@@ -231,83 +232,12 @@ void DashView::OnResultActivated(ResultView::ActivateType type, LocalResult cons
 
 void DashView::BuildPreview(Preview::Ptr model)
 {
-  if (!preview_displaying_)
-  {
-    StartPreviewAnimation();
-
-    content_view_->SetPresentRedirectedView(false);
-    preview_scope_view_ = active_scope_view_;
-    if (preview_scope_view_)
-    {
-      preview_scope_view_->ForceCategoryExpansion(stored_activated_unique_id_, true);
-      preview_scope_view_->EnableResultTextures(true);
-      preview_scope_view_->PushFilterExpansion(false);
-    }
-
-    if (!preview_container_)
-    {
-      preview_container_ = new previews::PreviewContainer();
-      preview_container_->SetRedirectRenderingToTexture(true);
-      AddChild(preview_container_.GetPointer());
-      preview_container_->SetParentObject(this);
-    }
-    preview_container_->Preview(model, previews::Navigation::NONE); // no swipe left or right
-    preview_container_->scale = scale();
-    preview_container_->SetGeometry(scopes_layout_->GetGeometry());
-    preview_displaying_ = true;
-
-    // connect to nav left/right signals to request nav left/right movement.
-    preview_container_->navigate_left.connect([this] () {
-      preview_navigation_mode_ = previews::Navigation::LEFT;
-
-      // sends a message to all result views, sending the the uri of the current preview result
-      // and the unique id of the result view that should be handling the results
-      ubus_manager_.SendMessage(UBUS_DASH_PREVIEW_NAVIGATION_REQUEST, g_variant_new("(ivs)", -1, g_variant_ref(last_activated_result_.Variant()), stored_activated_unique_id_.c_str()));
-    });
-
-    preview_container_->navigate_right.connect([this] () {
-      preview_navigation_mode_ = previews::Navigation::RIGHT;
-
-      // sends a message to all result views, sending the the uri of the current preview result
-      // and the unique id of the result view that should be handling the results
-      ubus_manager_.SendMessage(UBUS_DASH_PREVIEW_NAVIGATION_REQUEST, g_variant_new("(ivs)", 1, g_variant_ref(last_activated_result_.Variant()), stored_activated_unique_id_.c_str()));
-    });
-
-    preview_container_->request_close.connect([this] () { ClosePreview(); });
-  }
-  else
-  {
-    // got a new preview whilst already displaying, we probably clicked a navigation button.
-    preview_container_->Preview(model, preview_navigation_mode_); // TODO
-    preview_container_->scale = scale();
-  }
-
-  if (G_LIKELY(preview_state_machine_.left_results() > 0 && preview_state_machine_.right_results() > 0))
-    preview_container_->DisableNavButton(previews::Navigation::NONE);
-  else if (preview_state_machine_.left_results() > 0)
-    preview_container_->DisableNavButton(previews::Navigation::RIGHT);
-  else if (preview_state_machine_.right_results() > 0)
-    preview_container_->DisableNavButton(previews::Navigation::LEFT);
-  else
-    preview_container_->DisableNavButton(previews::Navigation::BOTH);
-
-  QueueDraw();
+  // Previews have been removed, so this function has been left blank until we eliminate all of the preview-related code.
 }
 
 void DashView::ClosePreview()
 {
-  if (preview_displaying_)
-  {
-    EndPreviewAnimation();
-
-    preview_displaying_ = false;
-  }
-
-  preview_navigation_mode_ = previews::Navigation::NONE;
-
-  // re-focus dash view component.
-  nux::GetWindowCompositor().SetKeyFocusArea(default_focus());
-  QueueDraw();
+  // Previews have been removed, so this function has been left blank until we eliminate all of the preview-related code.
 }
 
 void DashView::StartPreviewAnimation()
@@ -555,6 +485,11 @@ void DashView::SetupViews()
   content_view_->SetLayout(content_layout_);
   layout_->AddView(content_view_, 1, nux::MINOR_POSITION_START, nux::MINOR_SIZE_FULL);
 
+  scope_bar_ = new ScopeBar();
+  AddChild(scope_bar_);
+  scope_bar_->scope_activated.connect(sigc::mem_fun(this, &DashView::OnScopeBarActivated));
+  content_layout_->AddView(scope_bar_, 0, nux::MINOR_POSITION_CENTER);
+
   search_bar_layout_ = new nux::HLayout();
   content_layout_->AddLayout(search_bar_layout_, 0, nux::MINOR_POSITION_CENTER, nux::MINOR_SIZE_FULL);
 
@@ -577,11 +512,6 @@ void DashView::SetupViews()
 
   scopes_layout_ = new nux::VLayout();
   content_layout_->AddLayout(scopes_layout_, 1, nux::MINOR_POSITION_START);
-
-  scope_bar_ = new ScopeBar();
-  AddChild(scope_bar_);
-  scope_bar_->scope_activated.connect(sigc::mem_fun(this, &DashView::OnScopeBarActivated));
-  content_layout_->AddView(scope_bar_, 0, nux::MINOR_POSITION_CENTER);
 
   OnDPIChanged();
 }
@@ -701,24 +631,24 @@ nux::Geometry DashView::GetBestFitGeometry(nux::Geometry const& for_geo)
                          style.GetPlacesGroupResultTopPadding().CP(scale) +
                          style.GetTileHeight().CP(scale));
 
-  int half = for_geo.width / 2;
+  // let's show five tiles per row
+  width = tile_width * 5;
 
-  // if default dash size is bigger than half a screens worth of items, go for that.
-  while ((width += tile_width) < half);
-
-  width = std::max(width, tile_width * DASH_TILE_HORIZONTAL_COUNT);
   width += style.GetVSeparatorSize().CP(scale);
   width += style.GetPlacesGroupResultLeftPadding().CP(scale) + DASH_RESULT_RIGHT_PAD.CP(scale);
 
-  height = style.GetHSeparatorSize().CP(scale);
-  height += style.GetDashViewTopPadding().CP(scale);
-  height += search_bar_->GetGeometry().height;
-  height += category_height * DASH_DEFAULT_CATEGORY_COUNT; // adding three categories
-  height += scope_bar_->GetGeometry().height;
-
-  // width/height shouldn't be bigger than the geo available.
+  // width  shouldn't be bigger than the geo available.
   width = std::min(width, for_geo.width); // launcher width is taken into account in for_geo.
-  height = std::min(height, for_geo.height - vertical_offset); // panel height is not taken into account in for_geo.
+  height = for_geo.height - vertical_offset;
+
+  if (Settings::Instance().launcher_position() == LauncherPosition::BOTTOM) {
+    height = style.GetHSeparatorSize().CP(scale);
+    height += style.GetDashViewTopPadding().CP(scale);
+    height += search_bar_->GetGeometry().height;
+    height += category_height * 3;
+    height += scope_bar_->GetGeometry().height;
+    height = std::min(height, for_geo.height - vertical_offset);
+  }
 
   return nux::Geometry(0, vertical_offset, width, height);
 }
@@ -1091,59 +1021,7 @@ void DashView::DrawPreviewResultTextures(nux::GraphicsEngine& graphics_engine, b
 }
 
 void DashView::DrawPreview(nux::GraphicsEngine& graphics_engine, bool force_draw)
-{
-  if (animate_preview_value_ > 0.0f)
-  {
-    bool animating = animate_split_value_ != 1.0f || animate_preview_value_ < 1.0f;
-    bool preview_force_draw = force_draw || animating || IsFullRedraw();
-
-    if (preview_force_draw)
-      nux::GetPainter().PushBackgroundStack();
-
-    if (animate_preview_value_ < 1.0f && preview_container_->RedirectRenderingToTexture())
-    {
-      preview_container_->SetPresentRedirectedView(false);
-      preview_container_->ProcessDraw(graphics_engine, preview_force_draw);
-
-      unsigned int alpha, src, dest = 0;
-      graphics_engine.GetRenderStates().GetBlend(alpha, src, dest);
-      graphics_engine.GetRenderStates().SetBlend(true, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-      nux::ObjectPtr<nux::IOpenGLBaseTexture> preview_texture = preview_container_->BackupTexture();
-      if (preview_texture)
-      {
-        nux::TexCoordXForm texxform;
-        texxform.FlipVCoord(true);
-        texxform.uoffset = 0.0f;
-        texxform.voffset = 0.0f;
-        texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
-
-        nux::Geometry const& geo_preview = preview_container_->GetGeometry();
-        graphics_engine.QRP_1Tex
-        (
-          geo_preview.x,
-          geo_preview.y,
-          geo_preview.width,
-          geo_preview.height,
-          preview_texture,
-          texxform,
-          nux::Color(animate_preview_value_, animate_preview_value_, animate_preview_value_, animate_preview_value_)
-        );
-      }
-
-      preview_container_->SetPresentRedirectedView(true);
-
-      graphics_engine.GetRenderStates().SetBlend(alpha, src, dest);
-    }
-    else
-    {
-      preview_container_->ProcessDraw(graphics_engine, preview_force_draw);
-    }
-
-    if (preview_force_draw)
-      nux::GetPainter().PopBackgroundStack();
-  }
-}
+{ }
 
 void DashView::OnActivateRequest(GVariant* args)
 {

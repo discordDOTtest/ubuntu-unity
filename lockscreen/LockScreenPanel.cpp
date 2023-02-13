@@ -37,8 +37,8 @@ namespace lockscreen
 {
 namespace
 {
-const RawPixel PADDING = 5_em;
-const nux::Color BG_COLOR(0.1, 0.1, 0.1, 0.4);
+const RawPixel PADDING = 14_em;
+nux::Color BG_COLOR(0.1, 0.1, 0.1, 0.9);
 }
 
 using namespace indicator;

@@ -178,6 +178,8 @@ public:
   BaseTexturePtr GetDashLeftTile(double scale) const;
   BaseTexturePtr GetDashTopTile(double scale) const;
 
+  BaseTexturePtr GetEmpty(double scale) const;
+
   BaseTexturePtr GetDashCorner(double scale) const;
   BaseTexturePtr GetDashCornerMask(double scale) const;
   BaseTexturePtr GetDashLeftCorner(double scale) const;

@@ -39,7 +39,7 @@ namespace style
   RawPixel const LEFT_RIGHT_PADDING = 30_em;
   RawPixel const TOP_PADDING        = 19_em;
   RawPixel const BOTTOM_PADDING     = 12_em;
-  RawPixel const MAIN_SPACE         = 10_em;
+  RawPixel const MAIN_SPACE         = 17_em;
   RawPixel const BUTTONS_SPACE      = 20_em;
 }
 

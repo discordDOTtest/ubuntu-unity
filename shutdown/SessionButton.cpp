@@ -132,11 +132,11 @@ void Button::UpdateTextures(std::string const& texture_prefix)
 {
   auto const& theme = theme::Settings::Get();
   auto texture_path = theme->ThemedFilePath(texture_prefix, {PKGDATADIR});
-  RawPixel const texture_size = GetDefaultMaxTextureSize(texture_path);
+  RawPixel const texture_size = GetDefaultMaxTextureSize(texture_path) * 0.8;
   normal_tex_.Adopt(nux::CreateTexture2DFromFile(texture_path.c_str(), texture_size.CP(scale), true));
 
   auto texture_highlight_path = theme->ThemedFilePath(texture_prefix + "_highlight", {PKGDATADIR});
-  RawPixel const texture_highlight_size = GetDefaultMaxTextureSize(texture_path);
+  RawPixel const texture_highlight_size = GetDefaultMaxTextureSize(texture_path) * 0.8;
   highlight_tex_.Adopt(nux::CreateTexture2DFromFile(texture_highlight_path.c_str(), texture_highlight_size.CP(scale), true));
 }
 

@@ -82,7 +82,6 @@ private:
   void OnMouseButtonDown(int x, int y, unsigned long button_flags, unsigned long key_flags);
   void OnEndKeyFocus();
 
-  void UpdateBackground(bool force);
   void OnSearchChanged(nux::TextEntry* text_entry);
   void OnClearClicked(int x, int y, unsigned long button_flags, unsigned long key_flags);
   void OnEntryActivated();

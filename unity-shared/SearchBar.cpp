@@ -74,11 +74,11 @@ const RawPixel FILTER_HORIZONTAL_MARGIN = 8_em;
 
 // Fonts
 const std::string HINT_LABEL_FONT_SIZE = "15"; // == 20px
-const std::string HINT_LABEL_FONT_STYLE = "Italic";
+const std::string HINT_LABEL_FONT_STYLE = "Light";
 const std::string HINT_LABEL_DEFAULT_FONT = "Ubuntu " + HINT_LABEL_FONT_STYLE + " " + HINT_LABEL_FONT_SIZE;
 
-const std::string PANGO_ENTRY_DEFAULT_FONT_FAMILY = "Ubuntu";
-const RawPixel PANGO_ENTRY_FONT_SIZE = 22_em;
+const std::string PANGO_ENTRY_DEFAULT_FONT_FAMILY = "Ubuntu Light";
+const RawPixel PANGO_ENTRY_FONT_SIZE = 15_em;
 
 const std::string SHOW_FILTERS_LABEL_FONT_SIZE = "13";
 const std::string SHOW_FILTERS_LABEL_FONT_STYLE = "";
@@ -403,8 +403,6 @@ void SearchBar::Draw(nux::GraphicsEngine& graphics_engine, bool force_draw)
 {
   nux::Geometry const& base = GetGeometry();
 
-  UpdateBackground(false);
-
   graphics_engine.PushClippingRectangle(base);
 
   if (RedirectedAncestor())
@@ -511,64 +509,6 @@ void SearchBar::SetSearchFinished()
 
   bool is_empty = pango_entry_->im_active() ? false : pango_entry_->GetText().empty();
   spinner_->SetState(is_empty ? STATE_READY : STATE_CLEAR);
-}
-
-void SearchBar::UpdateBackground(bool force)
-{
-  nux::Geometry geo(GetGeometry());
-  geo.width = layered_layout_->GetAbsoluteX() +
-              layered_layout_->GetAbsoluteWidth() -
-              GetAbsoluteX() +
-              SEARCH_ENTRY_RIGHT_BORDER.CP(scale());
-
-  LOG_TRACE(logger) << "height: "
-  << geo.height << " - "
-  << layered_layout_->GetGeometry().height << " - "
-  << pango_entry_->GetGeometry().height;
-
-  if (!bg_layer_ &&
-      geo.width == last_width_
-      && geo.height == last_height_
-      && force == false)
-    return;
-
-  last_width_ = geo.width;
-  last_height_ = geo.height;
-
-  nux::CairoGraphics cairo_graphics(CAIRO_FORMAT_ARGB32, last_width_, last_height_);
-  cairo_t* cr = cairo_graphics.GetInternalContext();
-  cairo_surface_set_device_scale(cairo_get_target(cr), scale, scale);
-
-  cairo_graphics.DrawRoundedRectangle(cr,
-                                      1.0f,
-                                      0.5, 0.5,
-                                      CORNER_RADIUS,
-                                      (last_width_/scale) - 1, (last_height_/scale) - 1,
-                                      false);
-
-  cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
-  cairo_set_source_rgba(cr, 0.0f, 0.0f, 0.0f, 0.35f);
-  cairo_fill_preserve(cr);
-  cairo_set_line_width(cr, 1);
-  cairo_set_source_rgba(cr, 1.0f, 1.0f, 1.0f, 0.7f);
-  cairo_stroke(cr);
-
-  auto texture2D = texture_ptr_from_cairo_graphics(cairo_graphics);
-
-  nux::TexCoordXForm texxform;
-  texxform.SetTexCoordType(nux::TexCoordXForm::OFFSET_COORD);
-  texxform.SetWrap(nux::TEXWRAP_REPEAT, nux::TEXWRAP_REPEAT);
-
-  nux::ROPConfig rop;
-  rop.Blend = true;
-  rop.SrcBlend = GL_ONE;
-  rop.DstBlend = GL_ONE_MINUS_SRC_ALPHA;
-
-  bg_layer_.reset(new nux::TextureLayer(texture2D->GetDeviceTexture(),
-                                        texxform,
-                                        nux::color::White,
-                                        true,
-                                        rop));
 }
 
 void SearchBar::OnMouseButtonDown(int x, int y, unsigned long button, unsigned long key)

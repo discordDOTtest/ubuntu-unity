@@ -117,7 +117,11 @@ TEST_F(TestPreviewApplication, TestUIValues)
   EXPECT_EQ(preview_view->title_->GetText(), "Application Title &amp; special char");
   EXPECT_EQ(preview_view->subtitle_->GetText(), "Application Subtitle &gt; special char");
   EXPECT_EQ(preview_view->description_->GetText(), "Application Desctiption &lt; special char");
+  EXPECT_EQ(preview_view->license_->GetText(), "License &amp; special char");
+  //EXPECT_EQ(preview_view->last_update_->GetText(), "Last Updated 11th Apr 2012"); // Not 100% sure this will work with translations.
+  EXPECT_EQ(preview_view->copywrite_->GetText(), "Copywrite &amp; special char");
 
+  EXPECT_EQ(preview_view->app_rating_->GetRating(), 0.8f);
   EXPECT_EQ(preview_view->action_buttons_.size(), 2u);
 
   if (preview_view->action_buttons_.size() >= 2)

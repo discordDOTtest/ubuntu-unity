@@ -23,7 +23,7 @@
 
 namespace
 {
-  const int MAIN_LEFT_PADDING = 4;
+  const int MAIN_LEFT_PADDING = 6;
   const int MENUBAR_PADDING = 4;
 }
 
