@@ -34,7 +34,7 @@ from . _extended_context import ExtendedContext
 from . _brush import brush, TextAlign
 
 
-class CanvasType(type):
+class CanvasType:
     """The Canvas type.
 
     The canvas types enumerated in this Python type reflect the same window
@@ -55,7 +55,7 @@ class CanvasType(type):
     UNDECORATED = 3    # _NET_WM_WINDOW_TYPE_TOOLBAR
 
 
-class CanvasGravity(type):
+class CanvasGravity:
     """Window gravity control type.
 
     The positioning of a canvas on the screen is controlled by its gravity.

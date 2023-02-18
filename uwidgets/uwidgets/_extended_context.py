@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from . _brush import BrushSets, not_callable_from_instance
 
 
-class ExtendedContext():
+class ExtendedContext:
     """Extension of the standard `cairo.Context` class.
 
     This class is used to extend the vanilla `cairo.Context` with _brushes_.

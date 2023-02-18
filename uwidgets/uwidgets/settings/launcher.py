@@ -15,4 +15,4 @@ class UnityLauncher:
     def set_launcher_autohide(self, hidemode: bool):
         self.launcher_compiz_settings['launcher-hide-mode'] = hidemode
 
-# XXX: Add more settingsz
+# XXX: Add more settings

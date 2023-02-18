@@ -14,6 +14,11 @@ if os.path.exists(widgets_dir):
             config.read(os.path.join(widget, 'widget.ini'))
             if config.get('widget', 'enabled') == 'true':
                 os.popen(config.get('widget', 'exec'))
+            widgets.append(os.path.basename(widget))
         except:
             print(f'uwidget-runner: error occurred when attempting to run {widget}')
 
+if len(widgets) == 0:
+    print("No widgets found.")
+else:
+    print("Loaded:", ' '.join(widgets))

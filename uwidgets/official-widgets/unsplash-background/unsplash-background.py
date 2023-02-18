@@ -36,7 +36,7 @@ import configparser
 from gi.repository import GLib
 
 
-class Fonts(type):
+class Fonts:
     UBUNTU_NORMAL = "Ubuntu", cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL
 
 
@@ -84,11 +84,11 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read('settings.ini')
     unbg = UnBackground(
-        x = eval(config.get('settings', 'margin_x')),
-        y = eval(config.get('settings', 'margin_y')),
+        x = int(config.get('settings', 'margin_x')),
+        y = int(config.get('settings', 'margin_y')),
         width = 540,
         height = 80,
-        gravity = eval('CanvasGravity.' + config.get('settings', 'gravity')),
+        gravity = getattr(CanvasGravity, config.get('settings', 'gravity')),
         interval = 1000
     )
 

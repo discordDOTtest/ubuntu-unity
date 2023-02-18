@@ -70,7 +70,7 @@ class Clock(Canvas):
 
         ctx.translate(self.width >> 1, self.height >> 1)
 
-        eval(f"ctx.draw_{config.get('settings', 'clock_style')}_background()")
+        getattr(ctx, f"draw_{config.get('settings', 'clock_style')}_background")()
 
         ctx.hand(
             angle = now.second / 30 * PI,
@@ -95,10 +95,10 @@ class Clock(Canvas):
 if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read('settings.ini')
-    clock = Clock(eval(config.get('settings', 'margin_x')),
-                  eval(config.get('settings', 'margin_y')),
+    clock = Clock(int(config.get('settings', 'margin_x')),
+                  int(config.get('settings', 'margin_y')),
                   200,
                   200,
-                  gravity = eval('CanvasGravity.' + config.get('settings', 'gravity')))
+                  gravity = getattr(CanvasGravity, str(config.get('settings', 'gravity'))))
     clock.show()
     start_event_loop()

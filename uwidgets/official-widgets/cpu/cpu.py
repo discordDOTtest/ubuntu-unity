@@ -16,7 +16,7 @@ class AttrDict(dict):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
 
-class Fonts(type):
+class Fonts:
     UBUNTU_NORMAL = "Ubuntu", cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL
 
 
@@ -163,7 +163,7 @@ class Cpu(Canvas):
 if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read('settings.ini')
-    Cpu.build(eval(config.get('settings', 'margin_x')),
-              eval(config.get('settings', 'margin_y')),
-              gravity = eval('CanvasGravity.' + config.get('settings', 'gravity'))).show()
+    Cpu.build(int(config.get('settings', 'margin_x')),
+              int(config.get('settings', 'margin_y')),
+              gravity = getattr(CanvasGravity, config.get('settings', 'gravity'))).show()
     start_event_loop()

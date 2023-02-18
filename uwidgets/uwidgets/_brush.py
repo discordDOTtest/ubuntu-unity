@@ -127,7 +127,7 @@ def draw_grid(ctx, x = 50, y = 50):
     ctx.restore()
 
 
-class TextAlign(type):
+class TextAlign:
     TOP_RIGHT = 1
     TOP_MIDDLE = 2
     TOP_LEFT = 3

@@ -29,7 +29,7 @@ option(
 option(
   ENABLE_UNIT_TESTS
   "Enable Unity Unit Tests"
-  OFF
+  ON
 )
 
 # This is due to bug lp:668799 - qemu-arm segfaults executing msgmerge

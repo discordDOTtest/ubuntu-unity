@@ -41,7 +41,7 @@ from PIL import Image
 from pydbus import SessionBus
 
 
-class Fonts(type):
+class Fonts:
     UBUNTU_NORMAL = "Ubuntu", cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL
 
 
@@ -164,11 +164,11 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read('settings.ini')
     spotify = Spotify(
-        x = eval(config.get('settings', 'margin_x')),
-        y = eval(config.get('settings', 'margin_y')),
+        x = int(config.get('settings', 'margin_x')),
+        y = int(config.get('settings', 'margin_y')),
         width = 540,
         height = 96,
-        gravity = eval('CanvasGravity.' + config.get('settings', 'gravity')),
+        gravity = getattr(CanvasGravity, config.get('settings', 'gravity')),
         interval = 1000
     )
 
