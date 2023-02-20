@@ -46,7 +46,7 @@ setup(
     author_email     = 'rs2009@ubuntu.com',
     url              = 'https://unityd.org',
     classifiers=[
-        'Development Status :: 1 - Production/Stable',
+        'Development Status :: 5 - Production/Stable',
 
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
@@ -61,7 +61,4 @@ setup(
     ext_modules      = [x11],
     install_requires = ['pycairo'],
     scripts          = ['uwidgets-runner'],
-    extras_require   = {
-        'test': ['pytest-xvfb', 'psutil'],
-    },
 )
