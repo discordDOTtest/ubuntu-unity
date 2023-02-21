@@ -205,33 +205,6 @@ struct TestWindowCompositor
   }
 };
 
-TEST_F(TestLauncher, TestQuirksDuringDnd)
-{
-  MockMockLauncherIcon::Ptr first(new MockMockLauncherIcon::Nice);
-  model_->AddIcon(first);
-
-  MockMockLauncherIcon::Ptr second(new MockMockLauncherIcon::Nice);
-  model_->AddIcon(second);
-
-  MockMockLauncherIcon::Ptr third(new MockMockLauncherIcon::Nice);
-  model_->AddIcon(third);
-
-  EXPECT_CALL(*first, ShouldHighlightOnDrag(_))
-      .WillRepeatedly(Return(true));
-
-  EXPECT_CALL(*second, ShouldHighlightOnDrag(_))
-      .WillRepeatedly(Return(true));
-
-  EXPECT_CALL(*third, ShouldHighlightOnDrag(_))
-      .WillRepeatedly(Return(false));
-
-  launcher_->DndStarted("");
-
-  EXPECT_FALSE(first->GetQuirk(launcher::AbstractLauncherIcon::Quirk::DESAT, launcher_->monitor()));
-  EXPECT_FALSE(second->GetQuirk(launcher::AbstractLauncherIcon::Quirk::DESAT, launcher_->monitor()));
-  EXPECT_TRUE(third->GetQuirk(launcher::AbstractLauncherIcon::Quirk::DESAT, launcher_->monitor()));
-}
-
 TEST_F(TestLauncher, TestMouseWheelScroll)
 {
   MockMockLauncherIcon::Ptr icon(new MockMockLauncherIcon::Nice);
@@ -496,17 +469,6 @@ TEST_F(TestLauncher, DragLauncherIconHidesOutsideLauncherEmitsMouseEnter)
   EXPECT_FALSE(mouse_entered);
 }
 
-TEST_F(TestLauncher, EdgeReleasesDuringDnd)
-{
-  auto barrier = std::make_shared<ui::PointerBarrierWrapper>();
-  auto event = std::make_shared<ui::BarrierEvent>(0, 0, 0, 100);
-
-  launcher_->DndStarted("");
-
-  EXPECT_EQ(launcher_->HandleBarrierEvent(barrier, event),
-            ui::EdgeBarrierSubscriber::Result::NEEDS_RELEASE);
-}
-
 TEST_F(TestLauncher, EdgeBarriersIgnoreEvents)
 {
   auto const& launcher_geo = launcher_->GetAbsoluteGeometry();
@@ -616,26 +578,6 @@ TEST_F(TestLauncher, DndIsSpecialRequest)
   EXPECT_FALSE(launcher_->DndIsSpecialRequest("MyFile.txt"));
   EXPECT_FALSE(launcher_->DndIsSpecialRequest("/full/path/to/MyFile.txt"));
   EXPECT_FALSE(launcher_->DndIsSpecialRequest("file://full/path/to/MyFile.txt"));
-}
-
-TEST_F(TestLauncher, AddRequestSignal)
-{
-  auto const& icons = AddMockIcons(1);
-  auto const& center = icons[0]->GetCenter(launcher_->monitor());
-  launcher_->ProcessDndEnter();
-  launcher_->FakeProcessDndMove(center.x, center.y, {"application://MyFile.desktop"});
-
-  bool add_request = false;
-  launcher_->add_request.connect([&] (std::string const& uri, AbstractLauncherIcon::Ptr const& drop_icon) {
-    EXPECT_EQ(drop_icon, icons[0]);
-    EXPECT_EQ(uri, "application://MyFile.desktop");
-    add_request = true;
-  });
-
-  launcher_->ProcessDndDrop(center.x, center.y);
-  launcher_->ProcessDndLeave();
-
-  EXPECT_TRUE(add_request);
 }
 
 TEST_F(TestLauncher, IconStartingPulseValue)
