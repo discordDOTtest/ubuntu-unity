@@ -40,7 +40,7 @@ override_dh_install:
 	rm -rf debian/tmp/usr/share/gconf/schemas
 	# install uwidgets
 	cd uwidgets; python3 setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb
-	install -Dm755 $(CURDIR)/debian/tmp/usr/etc/xdg/autostart/uwidgets-runner.desktop $(CURDIR)/debian/tmp/etc/xdg/autostart/uwidgets-runner.desktop
+	install -Dm755 uwidgets/uwidgets-runner.desktop $(CURDIR)/debian/tmp/etc/xdg/autostart/uwidgets-runner.desktop
 	dh_install --fail-missing
 
 override_dh_gencontrol:
