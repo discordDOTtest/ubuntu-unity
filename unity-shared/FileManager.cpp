@@ -24,7 +24,7 @@
 #include "GnomeFileManager.h"
 #include "NemoFileManager.h"
 
-#include <gio/gdesktopappinfo.h>
+#include <gio/gio.h>
 
 namespace unity
 {

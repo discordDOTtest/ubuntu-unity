@@ -35,13 +35,12 @@ override_dh_auto_configure:
 
 override_dh_install:
 	# install autopilot tests
-	cd tests/autopilot; \
-	set -ex; for python in $(shell py3versions -r); do \
-        $$python setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb; \
-	done; \
-	cd $(CURDIR)
+	cd tests/autopilot; python3 setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb;
 	find debian/tmp/usr/lib -name \*.*a -exec rm {} \;
 	rm -rf debian/tmp/usr/share/gconf/schemas
+	# install uwidgets
+	cd uwidgets; python3 setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb
+	install -Dm755 uwidgets/uwidgets-runner.desktop $(CURDIR)/debian/tmp/etc/xdg/autostart/uwidgets-runner.desktop
 	dh_install --fail-missing
 
 override_dh_gencontrol:

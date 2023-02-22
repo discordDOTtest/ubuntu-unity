@@ -52,6 +52,9 @@ namespace
 const nux::Color EXPAND_DEFAULT_TEXT_COLOR(1.0f, 1.0f, 1.0f, 0.5f);
 const float EXPAND_DEFAULT_ICON_OPACITY = 0.5f;
 
+// Category  heading
+const RawPixel HEADER_VERTICAL_MARGIN =  10_em;
+
 // Category  highlight
 const RawPixel HIGHLIGHT_RIGHT_PADDING = 10_em;
 const RawPixel HIGHLIGHT_HEIGHT       = 24_em;
@@ -229,6 +232,7 @@ PlacesGroup::UpdatePlacesGroupSize()
 
   _header_layout->SetSpaceBetweenChildren(SPACE_BETWEEN_CHILDREN.CP(scale()));
   _header_layout->SetLeftAndRightPadding(_style.GetCategoryHeaderLeftPadding().CP(scale), 0);
+  _header_layout->SetVerticalExternalMargin(HEADER_VERTICAL_MARGIN);
 
   _icon->SetMinMaxSize(icon_size, icon_size);
 

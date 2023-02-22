@@ -45,8 +45,8 @@ DECLARE_LOGGER(logger, "unity.panel.menu");
 
 namespace
 {
-  const RawPixel MAIN_LEFT_PADDING = 4_em;
-  const RawPixel TITLE_PADDING = 2_em;
+  const RawPixel MAIN_LEFT_PADDING = 13_em;
+  const RawPixel TITLE_PADDING = 1_em;
   const RawPixel MENUBAR_PADDING = 4_em;
   const int MENU_ENTRIES_PADDING = 6;
 

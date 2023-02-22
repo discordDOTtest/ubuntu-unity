@@ -157,6 +157,8 @@ int main(int argc, char **argv)
   GError *error = NULL;
   GOptionContext *context;
 
+  unity::Settings settings;
+
   nux::NuxInitialize(0);
   nux::logging::configure_logging(::getenv("UNITY_LOG_SEVERITY"));
   
@@ -177,7 +179,6 @@ int main(int argc, char **argv)
   FontSettings font_settings;
 
   // The instances for the pseudo-singletons.
-  Settings settings;
   settings.is_standalone = true;
   if (force_tv) Settings::Instance().form_factor(FormFactor::TV);
 

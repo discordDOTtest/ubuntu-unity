@@ -19,12 +19,12 @@
 
 #include "NemoFileManager.h"
 #include <NuxCore/Logger.h>
-
+#include <UnityCore/DesktopUtilities.h>
 #include <UnityCore/GLibDBusProxy.h>
 #include <UnityCore/GLibWrapper.h>
-#include <gio/gdesktopappinfo.h>
 #include <gdk/gdk.h>
 #include <gio/gio.h>
+#include <gio/gdesktopappinfo.h>
 
 namespace unity
 {
@@ -38,56 +38,24 @@ const std::string FILE_SCHEMA = "file://";
 
 const std::string NEMO_DESKTOP_ID = "nemo.desktop";
 const std::string NEMO_NAME = "org.Nemo";
-const std::string NEMO_PATH = "/org/Nemo";
+const std::string NEMO_FILE_OPS_PATH = "/org/Nemo";
 }
 
 struct NemoFileManager::Impl
 {
   Impl(NemoFileManager* parent)
     : parent_(parent)
-    , app_info_(g_desktop_app_info_new(NEMO_DESKTOP_ID.c_str()))
   {
   }
 
   glib::DBusProxy::Ptr NemoOperationsProxy() const
   {
     auto flags = static_cast<GDBusProxyFlags>(G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES|G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS);
-    return std::make_shared<glib::DBusProxy>(NEMO_NAME, NEMO_PATH,
+    return std::make_shared<glib::DBusProxy>(NEMO_NAME, NEMO_FILE_OPS_PATH,
                                              "org.Nemo.FileOperations",
                                              G_BUS_TYPE_SESSION, flags);
   }
 
-  void Activate(uint64_t timestamp)
-  {
-    if (!app_info_)
-      return;
-
-    GdkDisplay* display = gdk_display_get_default();
-    glib::Object<GdkAppLaunchContext> context(gdk_display_get_app_launch_context(display));
-
-    if (timestamp > 0)
-      gdk_app_launch_context_set_timestamp(context, timestamp);
-
-    auto const& gcontext = glib::object_cast<GAppLaunchContext>(context);
-    auto proxy = std::make_shared<glib::DBusProxy>(NEMO_NAME, NEMO_PATH,
-                                                   "org.freedesktop.Application");
-
-    glib::String context_string(g_app_launch_context_get_startup_notify_id(
-      gcontext, glib::object_cast<GAppInfo>(app_info_), nullptr));
-
-    if (context_string && g_utf8_validate(context_string, -1, nullptr))
-    {
-      GVariantBuilder builder;
-      g_variant_builder_init(&builder, G_VARIANT_TYPE("a{sv}"));
-      g_variant_builder_add(&builder, "{sv}", "desktop-startup-id", g_variant_new("s", context_string.Value()));
-      GVariant *param = g_variant_new("(@a{sv})", g_variant_builder_end(&builder));
-
-      // Passing the proxy to the lambda we ensure that it will be destroyed when needed
-      proxy->CallBegin("Activate", param, [proxy] (GVariant*, glib::Error const&) {});
-    }
-  }
-
-  glib::Object<GDesktopAppInfo> app_info_;
   NemoFileManager* parent_;
 };
 
@@ -104,6 +72,38 @@ NemoFileManager::NemoFileManager()
 
 NemoFileManager::~NemoFileManager()
 {}
+
+void Activate(uint64_t timestamp)
+{
+  glib::Cancellable cancellable;
+  glib::Object<GAppInfo> app_info(G_APP_INFO (g_desktop_app_info_new(NEMO_DESKTOP_ID.c_str())));
+
+  if (app_info)
+  {
+    GdkDisplay* display = gdk_display_get_default();
+    glib::Object<GdkAppLaunchContext> context(gdk_display_get_app_launch_context(display));
+
+    if (timestamp > 0)
+      gdk_app_launch_context_set_timestamp(context, timestamp);
+
+    auto const& gcontext = glib::object_cast<GAppLaunchContext>(context);
+    auto proxy = std::make_shared<glib::DBusProxy>(NEMO_NAME, NEMO_FILE_OPS_PATH,
+                                                  "org.freedesktop.Application");
+
+    glib::String context_string(g_app_launch_context_get_startup_notify_id(gcontext, app_info, nullptr));
+
+    if (context_string && g_utf8_validate(context_string, -1, nullptr))
+    {
+      GVariantBuilder builder;
+      g_variant_builder_init(&builder, G_VARIANT_TYPE("a{sv}"));
+      g_variant_builder_add(&builder, "{sv}", "desktop-startup-id", g_variant_new("s", context_string.Value()));
+      GVariant *param = g_variant_new("(@a{sv})", g_variant_builder_end(&builder));
+
+      // Passing the proxy to the lambda we ensure that it will be destroyed when needed
+      proxy->CallBegin("Activate", param, [proxy] (GVariant*, glib::Error const&) {});
+    }
+  }
+}
 
 void NemoFileManager::Open(std::string const& uri, uint64_t timestamp)
 {
@@ -152,7 +152,7 @@ void NemoFileManager::EmptyTrash(uint64_t timestamp, Window parent_xid)
   auto const& proxy = impl_->NemoOperationsProxy();
 
   // Passing the proxy to the lambda we ensure that it will be destroyed when needed
-  impl_->Activate(timestamp);
+  Activate(timestamp);
   proxy->CallBegin("EmptyTrash", nullptr, [proxy] (GVariant*, glib::Error const&) {});
 }
 
@@ -184,7 +184,7 @@ void NemoFileManager::CopyFiles(std::set<std::string> const& uris, std::string c
     // Passing the proxy to the lambda we ensure that it will be destroyed when needed
     auto const& proxy = impl_->NemoOperationsProxy();
     proxy->CallBegin("CopyURIs", parameters, [proxy] (GVariant*, glib::Error const&) {});
-    impl_->Activate(timestamp);
+    Activate(timestamp);
   }
 }
 

@@ -562,10 +562,8 @@ void Launcher::SetupRenderArg(AbstractLauncherIcon::Ptr const& icon, RenderArg& 
   arg.progress_bias       = IconProgressBias(icon);
   arg.progress            = CLAMP(icon->GetProgress(), 0.0f, 1.0f);
   arg.draw_shortcut       = shortcuts_shown_ && !hide_machine_.GetQuirk(LauncherHideMachine::PLACES_VISIBLE);
-  arg.system_item         = icon->GetIconType() == AbstractLauncherIcon::IconType::HOME    ||
-                            icon->GetIconType() == AbstractLauncherIcon::IconType::HUD;
-  arg.colorify_background = icon->GetIconType() == AbstractLauncherIcon::IconType::HOME    ||
-                            icon->GetIconType() == AbstractLauncherIcon::IconType::HUD     ||
+  arg.system_item         = icon->GetIconType() == AbstractLauncherIcon::IconType::HUD;
+  arg.colorify_background = icon->GetIconType() == AbstractLauncherIcon::IconType::HUD     ||
                             icon->GetIconType() == AbstractLauncherIcon::IconType::TRASH   ||
                             icon->GetIconType() == AbstractLauncherIcon::IconType::DESKTOP ||
                             icon->GetIconType() == AbstractLauncherIcon::IconType::DEVICE  ||
@@ -1112,13 +1110,6 @@ void Launcher::OnOverlayShown(GVariant* data)
     }
 
     bg_effect_helper_.enabled = true;
-
-    // Don't desaturate icons if the mouse is over the launcher:
-    if (!hovered_)
-    {
-      LOG_DEBUG(logger) << "Desaturate on monitor " << monitor();
-      DesaturateIcons();
-    }
 
     if (icon_under_mouse_)
       icon_under_mouse_->HideTooltip();
@@ -2769,242 +2760,22 @@ bool Launcher::DndIsSpecialRequest(std::string const& uri) const
 }
 
 void Launcher::ProcessDndEnter()
-{
-#ifdef USE_X11
-  SetStateMouseOverLauncher(true);
-
-  dnd_data_.Reset();
-  drag_action_ = nux::DNDACTION_NONE;
-  steal_drag_ = false;
-  data_checked_ = false;
-  dnd_hovered_icon_ = nullptr;
-  drag_edge_touching_ = false;
-  dnd_hide_animation_.Stop();
-#endif
-}
+{ }
 
 void Launcher::DndReset()
-{
-#ifdef USE_X11
-  dnd_data_.Reset();
-
-  bool is_overlay_open = IsOverlayOpen();
-
-  for (auto it : *model_)
-  {
-    auto icon_type = it->GetIconType();
-    bool desaturate = false;
-
-    if (icon_type != AbstractLauncherIcon::IconType::HOME &&
-        icon_type != AbstractLauncherIcon::IconType::HUD)
-    {
-      desaturate = is_overlay_open && !hovered_;
-    }
-
-    it->SetQuirk(AbstractLauncherIcon::Quirk::DESAT, desaturate, monitor());
-    it->SetQuirk(AbstractLauncherIcon::Quirk::UNFOLDED, false, monitor());
-  }
-
-  DndHoveredIconReset();
-#endif
-}
+{ }
 
 void Launcher::DndHoveredIconReset()
-{
-#ifdef USE_X11
-  SetActionState(ACTION_NONE);
-
-  if (steal_drag_ && dnd_hovered_icon_)
-  {
-    dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::VISIBLE, false, monitor());
-    dnd_hovered_icon_->remove.emit(dnd_hovered_icon_);
-  }
-
-  if (!steal_drag_ && dnd_hovered_icon_)
-  {
-    dnd_hovered_icon_->SendDndLeave();
-    dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::GLOW, false, monitor());
-  }
-
-  steal_drag_ = false;
-  drag_edge_touching_ = false;
-  dnd_hovered_icon_ = nullptr;
-#endif
-}
+{ }
 
 void Launcher::ProcessDndLeave()
-{
-#ifdef USE_X11
-  SetStateMouseOverLauncher(false);
-  DndHoveredIconReset();
-#endif
-}
+{ }
 
 void Launcher::ProcessDndMove(int x, int y, std::list<char*> mimes)
-{
-#ifdef USE_X11
-  if (!data_checked_)
-  {
-    const std::string uri_list = "text/uri-list";
-    data_checked_ = true;
-    dnd_data_.Reset();
-    auto& display = nux::GetWindowThread()->GetGraphicsDisplay();
-
-    // get the data
-    for (auto const& mime : mimes)
-    {
-      if (mime != uri_list)
-        continue;
-
-      dnd_data_.Fill(display.GetDndData(const_cast<char*>(uri_list.c_str())));
-      break;
-    }
-
-    // see if the launcher wants this one
-    auto const& uris = dnd_data_.Uris();
-    if (std::find_if(uris.begin(), uris.end(), [this] (std::string const& uri)
-                     {return DndIsSpecialRequest(uri);}) != uris.end())
-    {
-      steal_drag_ = true;
-    }
-
-    // only set hover once we know our first x/y
-    SetActionState(ACTION_DRAG_EXTERNAL);
-    SetStateMouseOverLauncher(true);
-  }
-
-  SetMousePosition(x - parent_->GetGeometry().x, y - parent_->GetGeometry().y);
-
-  if (options()->hide_mode != LAUNCHER_HIDE_NEVER)
-  {
-    if ((monitor() == 0 && !IsOverlayOpen() && mouse_position_.x == 0 && !drag_edge_touching_) &&
-        ((launcher_position_ == LauncherPosition::LEFT &&
-          mouse_position_.y <= (parent_->GetGeometry().height - icon_size_.CP(cv_) - 2 * SPACE_BETWEEN_ICONS.CP(cv_))) ||
-        (launcher_position_ == LauncherPosition::BOTTOM &&
-         mouse_position_.x <= (parent_->GetGeometry().width - icon_size_.CP(cv_) - 2 * SPACE_BETWEEN_ICONS.CP(cv_)))))
-    {
-      if (dnd_hovered_icon_)
-      {
-        dnd_hovered_icon_->SendDndLeave();
-        dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::GLOW, false, monitor());
-      }
-
-      animation::StartOrReverse(dnd_hide_animation_, animation::Direction::FORWARD);
-      drag_edge_touching_ = true;
-    }
-    else if (drag_edge_touching_ &&
-             ((launcher_position_ == LauncherPosition::LEFT && mouse_position_.x != 0) ||
-              (launcher_position_ == LauncherPosition::BOTTOM && mouse_position_.y != 0)))
-    {
-      animation::StartOrReverse(dnd_hide_animation_, animation::Direction::BACKWARD);
-      drag_edge_touching_ = false;
-    }
-  }
-
-  EventLogic();
-  auto const& hovered_icon = MouseIconIntersection(mouse_position_.x, mouse_position_.y);
-
-  bool hovered_icon_is_appropriate = false;
-  if (hovered_icon)
-  {
-    if (hovered_icon->GetIconType() == AbstractLauncherIcon::IconType::TRASH)
-      steal_drag_ = false;
-
-    if (hovered_icon->position() == AbstractLauncherIcon::Position::FLOATING)
-      hovered_icon_is_appropriate = true;
-  }
-
-  if (steal_drag_)
-  {
-    drag_action_ = nux::DNDACTION_COPY;
-    if (!dnd_hovered_icon_ && hovered_icon_is_appropriate)
-    {
-      dnd_hovered_icon_ = new SpacerLauncherIcon(monitor());
-      model_->AddIcon(dnd_hovered_icon_);
-      model_->ReorderBefore(dnd_hovered_icon_, hovered_icon, true);
-    }
-    else if (dnd_hovered_icon_)
-    {
-      if (hovered_icon)
-      {
-        if (hovered_icon_is_appropriate)
-        {
-          model_->ReorderSmart(dnd_hovered_icon_, hovered_icon, true);
-        }
-        else
-        {
-          dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::VISIBLE, false, monitor());
-          dnd_hovered_icon_->remove.emit(dnd_hovered_icon_);
-          dnd_hovered_icon_ = nullptr;
-        }
-      }
-    }
-  }
-  else
-  {
-    if (!drag_edge_touching_ && hovered_icon != dnd_hovered_icon_)
-    {
-      if (hovered_icon)
-      {
-        hovered_icon->SendDndEnter();
-        drag_action_ = hovered_icon->QueryAcceptDrop(dnd_data_);
-
-        if (drag_action_ != nux::DNDACTION_NONE)
-          hovered_icon->SetQuirk(AbstractLauncherIcon::Quirk::GLOW, true, monitor());
-      }
-      else
-      {
-        drag_action_ = nux::DNDACTION_NONE;
-      }
-
-      if (dnd_hovered_icon_)
-      {
-        dnd_hovered_icon_->SendDndLeave();
-        dnd_hovered_icon_->SetQuirk(AbstractLauncherIcon::Quirk::GLOW, false, monitor());
-      }
-
-      dnd_hovered_icon_ = hovered_icon;
-    }
-  }
-
-  bool accept;
-  if (drag_action_ != nux::DNDACTION_NONE)
-    accept = true;
-  else
-    accept = false;
-
-  SendDndStatus(accept, drag_action_, nux::Geometry(x, y, 1, 1));
-#endif
-}
+{ }
 
 void Launcher::ProcessDndDrop(int x, int y)
-{
-#ifdef USE_X11
-  if (steal_drag_)
-  {
-    for (auto const& uri : dnd_data_.Uris())
-    {
-      if (DndIsSpecialRequest(uri))
-        add_request.emit(uri, dnd_hovered_icon_);
-    }
-  }
-  else if (dnd_hovered_icon_ && drag_action_ != nux::DNDACTION_NONE)
-  {
-     if (IsOverlayOpen())
-       ubus_.SendMessage(UBUS_OVERLAY_CLOSE_REQUEST);
-
-    dnd_hovered_icon_->AcceptDrop(dnd_data_);
-  }
-
-  if (drag_action_ != nux::DNDACTION_NONE)
-    SendDndFinished(true, drag_action_);
-  else
-    SendDndFinished(false, drag_action_);
-
-  // reset our shiz
-  DndReset();
-#endif
-}
+{ }
 
 /*
  * Returns the current selected icon if it is in keynavmode
@@ -3035,81 +2806,16 @@ int Launcher::GetDragDelta() const
 }
 
 void Launcher::DndStarted(std::string const& data)
-{
-#ifdef USE_X11
-  SetDndQuirk();
-
-  dnd_data_.Fill(data.c_str());
-
-  auto const& uris = dnd_data_.Uris();
-  if (std::find_if(uris.begin(), uris.end(), [this] (std::string const& uri)
-                   {return DndIsSpecialRequest(uri);}) != uris.end())
-  {
-    steal_drag_ = true;
-
-    if (IsOverlayOpen())
-      SaturateIcons();
-  }
-  else
-  {
-    for (auto const& it : *model_)
-    {
-      if (it->ShouldHighlightOnDrag(dnd_data_))
-      {
-        it->SetQuirk(AbstractLauncherIcon::Quirk::DESAT, false, monitor());
-        it->SetQuirk(AbstractLauncherIcon::Quirk::UNFOLDED, true, monitor());
-      }
-      else
-      {
-        it->SetQuirk(AbstractLauncherIcon::Quirk::DESAT, true, monitor());
-        it->SetQuirk(AbstractLauncherIcon::Quirk::UNFOLDED, false, monitor());
-      }
-    }
-  }
-#endif
-}
+{ }
 
 void Launcher::DndFinished()
-{
-#ifdef USE_X11
-  UnsetDndQuirk();
-
-  data_checked_ = false;
-
-  DndReset();
-#endif
-}
+{ }
 
 void Launcher::SetDndQuirk()
-{
-#ifdef USE_X11
-  hide_machine_.SetQuirk(LauncherHideMachine::EXTERNAL_DND_ACTIVE, true);
-#endif
-}
+{ }
 
 void Launcher::UnsetDndQuirk()
-{
-#ifdef USE_X11
-
-  if (IsOverlayOpen() && !hovered_)
-  {
-    DesaturateIcons();
-  }
-  else
-  {
-    for (auto const& it : *model_)
-    {
-      it->SetQuirk(AbstractLauncherIcon::Quirk::DESAT, false, monitor());
-      it->SetQuirk(AbstractLauncherIcon::Quirk::UNFOLDED, false, monitor());
-    }
-  }
-
-
-  hide_machine_.SetQuirk(LauncherHideMachine::MT_DRAG_OUT, drag_out_delta_x_ >= DRAG_OUT_PIXELS - 90.0f);
-  hide_machine_.SetQuirk(LauncherHideMachine::EXTERNAL_DND_ACTIVE, false);
-  animation::SetValue(dnd_hide_animation_, animation::Direction::BACKWARD);
-#endif
-}
+{ }
 
 } // namespace launcher
 } // namespace unity

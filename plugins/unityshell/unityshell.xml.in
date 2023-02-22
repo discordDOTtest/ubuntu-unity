@@ -104,8 +104,8 @@
                 <option name="panel_opacity" type="float">
                     <_short>Panel Opacity</_short>
                     <_long>The opacity of the Panel background.</_long>
-                    <default>1.0</default>
-                    <min>0.0</min>
+                    <default>0.75</default>
+                    <min>0.1</min>
                     <max>1.0</max>
                     <precision>0.01</precision>
                 </option>
@@ -419,7 +419,7 @@
                 <option name="icon_size" type="int">
                     <_short>Launcher Icon Size</_short>
                     <_long>The size of the icons in the Launcher.</_long>
-                    <default>48</default>
+                    <default>44</default>
                     <min>8</min>
                     <max>64</max>
                     <precision>1</precision>
@@ -430,7 +430,7 @@
                     <_long>Change how the icons in the Launcher are backlit.</_long>
                     <min>0</min>
                     <max>4</max>
-                    <default>1</default>
+                    <default>4</default>
                     <desc>
                         <value>0</value>
                         <_name>Backlight Always On</_name>

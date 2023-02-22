@@ -40,7 +40,7 @@ using namespace unity;
 
 namespace
 {
-const nux::Size win_size(1024, 768);
+const nux::Size win_size(1280, 720);
 const nux::Color bg_color(95/255.0f, 18/255.0f, 45/255.0f, 1.0f);
 }
 

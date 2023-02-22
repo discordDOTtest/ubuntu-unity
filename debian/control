@@ -11,6 +11,8 @@ Build-Depends: cmake (>= 3.17.0),
                dh-translations (>= 94),
                dh-python,
                google-mock (>= 1.6.0+svn437),
+               gir1.2-gtk-3.0,
+               gir1.2-glib-2.0,
                gsettings-desktop-schemas-dev,
                gsettings-ubuntu-schemas (>= 0.0.7+17.10.20170922),
                intltool (>= 0.35.0),
@@ -48,17 +50,21 @@ Build-Depends: cmake (>= 3.17.0),
                libxcb-icccm4-dev,
                libxfixes-dev (>= 1:5.0.1),
                libxi-dev (>= 2:1.7.1.901),
+               libxinerama-dev,
                libxpathselect-dev (>=1.4),
                libxtst-dev,
                libzeitgeist-2.0-dev,
                pkg-config,
                python3-all (>= 3.4),
+               python3-dev,
+               python3-gi,
                python3-setuptools,
                quilt,
                systemd,
+               xorg,
                xserver-xorg-video-dummy,
                xsltproc,
-               yaru-theme-icon,
+               yaru-theme-icon
 Standards-Version: 3.9.5
 Homepage: https://launchpad.net/unity
 # If you aren't a member of ~unity-team but need to upload packaging changes,
@@ -95,6 +101,8 @@ Recommends: unity-control-center,
             hud,
             session-shortcuts,
             unity-session,
+            unity-uwidgets,
+            indicator-notifications
 Breaks: unity-lens-applications (<< 5.12.0-0ubuntu2),
         unity-lens-files (<< 5.10.0-0ubuntu2),
         unity-lens-music (<< 6.0.0),
@@ -219,4 +227,29 @@ Description: Autopiloted tests for Unity
  introspection.  This package contains the specific unity introspection
  bindings to be able to write tests in python as well as the full test suite
  for Unity.
+
+Package: unity-uwidgets
+Section: python
+Architecture: all
+Depends: ${misc:Depends},
+         ${python3:Depends},
+         python3,
+         xorg,
+         libxinerama-dev,
+         libcairo2-dev,
+         python3-gi,
+         python3-pil,
+         python3-pydbus,
+         python3-psutil,
+         gir1.2-gtk-3.0,
+         gir1.2-glib-2.0,
+Description: Widgets for Unity
+ Unity is a desktop experience that sings. Designed by Canonical and the Ayatana
+ community, Unity is all about the combination of familiarity and the future. We
+ bring together visual design, analysis of user experience testing, modern
+ graphics technologies and a deep understanding of the free software landscape
+ to produce what we hope will be the lightest, most elegant and most delightful
+ way to use your PC.
+ .
+ This package contains support for widgets for Unity, based on Blighty.
 

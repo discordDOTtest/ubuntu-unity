@@ -23,7 +23,7 @@
 #include <NuxCore/Logger.h>
 #include <UnityCore/DesktopUtilities.h>
 
-#include "unity-shared/FileManager.h"
+#include "unity-shared/GnomeFileManager.h"
 
 namespace unity
 {

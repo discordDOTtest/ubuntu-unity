@@ -41,7 +41,7 @@ using namespace unity::panel;
 struct PanelWindow
 {
   PanelWindow()
-    : wt(nux::CreateGUIThread("Unity Panel", 1024, 24, 0, &PanelWindow::ThreadWidgetInit, this))
+    : wt(nux::CreateGUIThread("Unity Panel", 1024, 30, 0, &PanelWindow::ThreadWidgetInit, this))
     , animation_controller(tick_source)
   {}
 

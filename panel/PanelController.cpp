@@ -66,7 +66,7 @@ Controller::Impl::Impl(Controller* parent, menu::Manager::Ptr const& indicators,
   : parent_(parent)
   , indicators_(indicators)
   , edge_barriers_(edge_barriers)
-  , opacity_(1.0f)
+  , opacity_(0.7f)
   , opacity_maximized_toggle_(false)
 {
   UScreen* screen = UScreen::GetDefault();

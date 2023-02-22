@@ -374,35 +374,8 @@ Style::Impl::~Impl()
 
 void Style::Impl::Refresh()
 {
-  const char* const SAMPLE_MAX_TEXT = "Chromium Web Browser";
-
-  nux::CairoGraphics util_cg(CAIRO_FORMAT_ARGB32, 1, 1);
-  cairo_t* cr = util_cg.GetInternalContext();
-
-  auto const& font = theme::Settings::Get()->font();
-  PangoFontDescription* desc = ::pango_font_description_from_string(font.c_str());
-  ::pango_font_description_set_weight(desc, PANGO_WEIGHT_NORMAL);
-  ::pango_font_description_set_size(desc, 9 * PANGO_SCALE);
-
-  glib::Object<PangoLayout> layout(::pango_cairo_create_layout(cr));
-  ::pango_layout_set_font_description(layout, desc);
-  ::pango_layout_set_text(layout, SAMPLE_MAX_TEXT, -1);
-
-  PangoContext* cxt = ::pango_layout_get_context(layout);
-
-  GdkScreen* screen = ::gdk_screen_get_default();
-  ::pango_cairo_context_set_font_options(cxt, ::gdk_screen_get_font_options(screen));
-  ::pango_cairo_context_set_resolution(cxt, 96.0 * Settings::Instance().font_scaling());
-  ::pango_layout_context_changed(layout);
-
-  PangoRectangle log_rect;
-  ::pango_layout_get_pixel_extents(layout, NULL, &log_rect);
-  text_width_ = log_rect.width;
-  text_height_ = log_rect.height;
-
-  owner_->changed.emit();
-
-  pango_font_description_free(desc);
+  text_width_ = 56;
+  text_height_ = 12;
 }
 
 void Style::Impl::UpdateFormFactor(FormFactor form_factor)
@@ -2186,6 +2159,11 @@ BaseTexturePtr Style::GetDashRightCornerMask(double scale) const
   return pimpl->LoadScaledTexture("dash_top_right_corner_mask", scale);
 }
 
+BaseTexturePtr Style::GetEmpty(double scale) const
+{
+  return pimpl->LoadScaledTexture("empty", scale);
+}
+
 BaseTexturePtr Style::GetSearchMagnifyIcon(double scale) const
 {
   return pimpl->LoadScaledTexture("search_magnify", scale);
@@ -2236,33 +2214,33 @@ nux::Color const& Style::GetTextColor() const
 
 RawPixel Style::GetTileGIconSize() const
 {
-  return 64;
+  return 48;
 }
 
 RawPixel Style::GetTileImageSize() const
 {
-  return 96;
+  return 48;
 }
 
 RawPixel Style::GetTileWidth() const
 {
-  return std::max(pimpl->text_width_, 150);
+  return std::max(pimpl->text_width_, 106);
 }
 
 RawPixel Style::GetTileHeight() const
 {
   return std::max(GetTileImageSize() + (pimpl->text_height_ * 2) + 15,
-                  GetTileImageSize() + 32); // magic design numbers.
+                  GetTileImageSize() + 80); // magic design numbers.
 }
 
 RawPixel Style::GetTileIconHightlightHeight() const
 {
-  return 106;
+  return 48;
 }
 
 RawPixel Style::GetTileIconHightlightWidth() const
 {
-  return 106;
+  return 48;
 }
 
 RawPixel Style::GetHomeTileIconSize() const
@@ -2363,7 +2341,7 @@ RawPixel Style::GetHSeparatorSize() const
 
 RawPixel Style::GetFilterBarWidth() const
 {
-  return 300;
+  return 250;
 }
 
 RawPixel Style::GetFilterBarLeftPadding() const
@@ -2418,7 +2396,7 @@ RawPixel Style::GetFilterHighlightPadding() const
 
 RawPixel Style::GetSpaceBetweenFilterWidgets() const
 {
-  return 12;
+  return 6;
 }
 
 RawPixel Style::GetAllButtonHeight() const
@@ -2498,12 +2476,12 @@ RawPixel Style::GetPlacesGroupTopSpace() const
 
 RawPixel Style::GetPlacesGroupResultTopPadding() const
 {
-  return 2;
+  return 19;
 }
 
 RawPixel Style::GetPlacesGroupResultLeftPadding() const
 {
-  return 25;
+  return 19;
 }
 
 RawPixel Style::GetCategoryHeaderLeftPadding() const

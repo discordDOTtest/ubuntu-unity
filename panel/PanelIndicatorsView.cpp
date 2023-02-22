@@ -46,6 +46,7 @@ PanelIndicatorsView::PanelIndicatorsView()
 {
   opacity.DisableNotifications();
   layout_->SetContentDistribution(nux::MAJOR_POSITION_END);
+  layout_->SetLeftAndRightPadding(layout_->GetLeftPadding(), 6);
   SetLayout(layout_);
 
   LOG_DEBUG(logger) << "Indicators View Added: ";

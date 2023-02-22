@@ -29,7 +29,7 @@
 
 #include "QuicklistMenuItemLabel.h"
 #include "unity-shared/DesktopApplicationManager.h"
-#include "unity-shared/FileManager.h"
+#include "unity-shared/GnomeFileManager.h"
 
 namespace unity
 {

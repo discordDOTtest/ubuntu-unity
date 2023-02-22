@@ -27,7 +27,7 @@ namespace
 DECLARE_LOGGER(logger, "unity.background_effect_helper");
 
 const int BLUR_RADIUS = 3;
-const float sigma_high = 5.0f;
+const float sigma_high = 10.0f;
 const float sigma_med = 3.0f;
 const float sigma_low = 1.0f;
 }

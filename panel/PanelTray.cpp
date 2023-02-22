@@ -29,7 +29,7 @@ DECLARE_LOGGER(logger, "unity.panel.tray");
 namespace
 {
 const std::string SETTINGS_NAME = "com.canonical.Unity.Panel";
-const int PADDING = 3;
+const int PADDING = 12;
 const std::array<std::string, 2> WHITELIST {{ "JavaEmbeddedFrame", "Wine" }};
 }
 
@@ -63,7 +63,7 @@ PanelTray::PanelTray(int monitor)
                                    GTK_ORIENTATION_HORIZONTAL,
                                    (NaTrayFilterCallback)FilterTrayCallback,
                                    this);
-    na_tray_set_icon_size(tray_, panel_height);
+    na_tray_set_icon_size(tray_, panel_height-6);
 
     icon_removed_signal_.Connect(na_tray_get_manager(tray_), "tray_icon_removed",
                                  sigc::mem_fun(this, &PanelTray::OnTrayIconRemoved));
@@ -97,7 +97,7 @@ Window PanelTray::xid()
 
 void PanelTray::Draw(nux::GraphicsEngine& gfx_context, bool force_draw)
 {
-  nux::Geometry const& geo = GetAbsoluteGeometry();
+  nux::Geometry geo = GetAbsoluteGeometry();
 
   gfx_context.PushClippingRectangle(geo);
   nux::GetPainter().PaintBackground(gfx_context, geo);

@@ -52,7 +52,7 @@ public:
   typedef PanelIndicatorEntryView::IndicatorEntryType IndicatorEntryType;
 
   PanelIndicatorEntryView* AddEntry(indicator::Entry::Ptr const& entry,
-                                    int padding = 5,
+                                    int padding = 9,
                                     IndicatorEntryPosition pos = AUTO,
                                     IndicatorEntryType type = IndicatorEntryType::INDICATOR);
   void RemoveEntry(indicator::Entry::Ptr const&);

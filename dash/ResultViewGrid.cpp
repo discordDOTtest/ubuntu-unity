@@ -55,7 +55,7 @@ namespace
 
   const int DOUBLE_CLICK_SPEED = 500; //500 ms (double-click speed hardcoded to 400 ms in nux)
 
-  const RawPixel WIDTH_PADDING   = 25_em;
+  const RawPixel WIDTH_PADDING   =  25_em;
   const RawPixel SCROLLBAR_WIDTH =  3_em;
 
   const std::string APPLICATION_URI_PREFIX = "application://";

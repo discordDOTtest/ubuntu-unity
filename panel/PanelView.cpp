@@ -58,7 +58,7 @@ PanelView::PanelView(MockableBaseWindow* parent, menu::Manager::Ptr const& menus
   , opacity_maximized_toggle_(false)
   , needs_geo_sync_(false)
   , overlay_is_open_(false)
-  , opacity_(1.0f)
+  , opacity_(0.7f)
   , monitor_(0)
   , stored_dash_width_(0)
   , bg_effect_helper_(this)
@@ -539,7 +539,7 @@ PanelView::UpdateBackground()
 
   if (overlay_is_open_ || wm.IsScaleActive())
   {
-    bg_layer_.reset(new nux::ColorLayer(wm.average_color(), true, rop));
+    // bg_layer_.reset(new nux::ColorLayer(wm.average_color(), true, rop));
   }
   else
   {

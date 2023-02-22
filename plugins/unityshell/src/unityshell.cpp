@@ -3157,72 +3157,8 @@ bool UnityWindow::glDraw(const GLMatrix& matrix,
 
   auto draw_panel_shadow = DrawPanelShadow::NO;
 
-  if (!(mask & PAINT_WINDOW_ON_TRANSFORMED_SCREEN_MASK))
-  {
-    Window active_window = screen->activeWindow();
-
-    if (G_UNLIKELY(window_type == CompWindowTypeDesktopMask))
-    {
-      uScreen->setPanelShadowMatrix(matrix);
-
-      if (active_window == 0 || active_window == window->id())
-      {
-        if (PluginAdapter::Default().IsWindowOnTop(window->id()))
-        {
-          draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
-        }
-        uScreen->is_desktop_active_ = true;
-      }
-    }
-    else
-    {
-      if (window->id() == active_window)
-      {
-        draw_panel_shadow = DrawPanelShadow::BELOW_WINDOW;
-        uScreen->is_desktop_active_ = false;
-
-        if (!(window_state & CompWindowStateMaximizedVertMask) &&
-            !(window_state & CompWindowStateFullscreenMask) &&
-            !(window_type & CompWindowTypeFullscreenMask))
-        {
-          auto const& output = uScreen->screen->currentOutputDev();
-          int monitor = uScreen->WM.MonitorGeometryIn(NuxGeometryFromCompRect(output));
-
-          if (window->y() - window->border().top < output.y() + uScreen->panel_style_.PanelHeight(monitor))
-          {
-            draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
-          }
-        }
-      }
-      else if (uScreen->menus_->integrated_menus())
-      {
-        draw_panel_shadow = DrawPanelShadow::BELOW_WINDOW;
-      }
-      else
-      {
-        if (uScreen->is_desktop_active_)
-        {
-          if (PluginAdapter::Default().IsWindowOnTop(window->id()))
-          {
-            draw_panel_shadow = DrawPanelShadow::OVER_WINDOW;
-            uScreen->panelShadowPainted = CompRegion();
-          }
-        }
-      }
-    }
-  }
-
-  if (locked)
-    draw_panel_shadow = DrawPanelShadow::NO;
-
-  if (draw_panel_shadow == DrawPanelShadow::BELOW_WINDOW)
-    uScreen->paintPanelShadow(region);
-
   deco_win_->Draw(matrix, attrib, region, mask);
   bool ret = gWindow->glDraw(matrix, attrib, region, mask);
-
-  if (draw_panel_shadow == DrawPanelShadow::OVER_WINDOW)
-    uScreen->paintPanelShadow(region);
 
   return ret;
 }

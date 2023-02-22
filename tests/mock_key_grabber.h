@@ -18,7 +18,7 @@
  *
  */
 
-#include "KeyGrabber.h"
+#include "unity-shared/KeyGrabber.h"
 #include <gmock/gmock.h>
 
 namespace unity
